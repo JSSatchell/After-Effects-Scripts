@@ -12,12 +12,12 @@ var allLayers = comp.layers;
 app.beginUndoGroup("Add zest");
 
 index=1;
-for (var i=1; i < allLayers.length; i++) {
-    if (allLayers[i].name.search("zest")>0)
+for (var i=1; i <= allLayers.length; i++) {
+    if (allLayers[i].name.search("zëst")>0)
         index++;
 }
 var zestLayer = comp.layers.addShape();
-zestLayer.name = " - zest " + index + " - ";
+zestLayer.name = "÷ zëst " + index + " ÷";
 var zestGroup = zestLayer.property("Contents").addProperty("ADBE Vector Group");
 zestGroup.name = "zest";
 var zestShape = zestGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
