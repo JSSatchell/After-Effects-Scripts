@@ -20,11 +20,7 @@ var zestLayer = comp.layers.addShape();
 zestLayer.name = "÷ zëst " + index + " ÷";
 var zestGroup = zestLayer.property("Contents").addProperty("ADBE Vector Group");
 zestGroup.name = "zest";
-var zestShape = zestGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
-zestShape.property("Size").setValue([comp.width,comp.height]);
 zestLayer.adjustmentLayer = 1;
-var zestFill = zestGroup.property("Contents").addProperty("ADBE Vector Graphic - Fill");
-zestFill.property("Color").setValue([0,0,0]);
 if (app.preferences.havePref("Label Preference Indices Section 5", "Adjustment Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
     var adjColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Adjustment Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT);
 } else if (app.preferences.havePref("Label Preference Indices Section 5", "Adjustment Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
@@ -32,6 +28,12 @@ if (app.preferences.havePref("Label Preference Indices Section 5", "Adjustment L
 } else {
     adjColor = 1;
 }
+zestLayer.label = adjColor;
+
+var zestShape = zestGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
+zestShape.property("Size").setValue([comp.width,comp.height]);
+var zestFill = zestGroup.property("Contents").addProperty("ADBE Vector Graphic - Fill");
+zestFill.property("Color").setValue([0,0,0]);
 
 if(layers.length > 0) {
     var newIn;
@@ -59,7 +61,5 @@ if(layers.length > 0) {
     zestLayer.inPoint = minIn;
     zestLayer.outPoint = maxOut;
 }
-
-zestLayer.label = adjColor;
 
 app.endUndoGroup();
