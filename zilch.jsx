@@ -26,7 +26,8 @@ zilchShape.property("Size").setValue([100,100]);
 var zilchStroke = zilchGroup.property("Contents").addProperty("ADBE Vector Graphic - Stroke");
 var strokeColor = zilchStroke.property("Color").setValue([0,200,255]);
 var strokeWidth = zilchStroke.property("Stroke Width").setValue(1);
-/*
+
+/* // For some reason this causes the layer properties to be twirled down when created, working on a fix
 var dash1 = zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Dash 1").setValue(2);
 var gap1 = zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Gap 1").setValue(2);
 var offset = zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Offset").setValue(4);
@@ -72,47 +73,14 @@ if(layers.length > 0) {
         if (layers[i].parent == "") {
             layers[i].parent = zilchLayer;
         } else {
-            //nextParent = layers[i].parent;
-            //if (nextParent == "")
             zilchLayer.parent = layers[i].parent;
             layers[i].parent = zilchLayer;
         }
-        //xPosArray.push(thisX);
-        //yPosArray.push(thisY);
-        //zPosArray.push(thisZ);
     }
     zilchLayer.inPoint = minIn;
     zilchLayer.outPoint = maxOut;
 }
-//avgX = arrayAverage(xPosArray);
-//avgY = arrayAverage(yPosArray);
-//avgZ = arrayAverage(zPosArray);
-
-//zlichX = zilchLayer.property("Transform").property("ADBE Position_0").setValue(avgX);
-//zlichY = zilchLayer.property("Transform").property("ADBE Position_1").setValue(avgY);
-//zlichX = zilchLayer.property("Transform").property("ADBE Position_2").setValue(avgZ);
 
 zilchLayer.label = nullColor;
 
 app.endUndoGroup();
-
-/*
-function arrayAverage(arr){
-    //Find the sum
-    var sum = 0;
-    if (arr.length>0) {
-        for(var i in arr) {
-            sum += arr[i];
-        }
-    }
-    //Get the length of the array
-    var numbersCnt = arr.length;
-    if (sum>0) {
-        result = (sum / numbersCnt);
-    } else {
-        result = 0;
-    }
-    //Return the average / mean.
-    return result;
-}
-*/
