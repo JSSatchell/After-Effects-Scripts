@@ -12,13 +12,22 @@ var allLayers = comp.layers;
 app.beginUndoGroup("Add zilch");
 
 index=1;
-for (var i=1; i < allLayers.length; i++) {
-    if (allLayers[i].name.search("zilch")>0)
+for (var i=1; i <= allLayers.length; i++) {
+    if (allLayers[i].name.search("z'lch")>0)
         index++;
 }
 var zilchLayer = comp.layers.addShape();
+zilchLayer.name = "» z'lch " + index + " «";
 zilchLayer.guideLayer = 1;
-zilchLayer.name = " - zilch " + index + " - ";
+if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
+    var nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT);
+} else if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
+    nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT);
+} else {
+    nullColor = 9;
+}
+zilchLayer.label = nullColor;
+
 var zilchGroup = zilchLayer.property("Contents").addProperty("ADBE Vector Group");
 zilchGroup.name = "zilch";
 var zilchShape = zilchGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
@@ -33,15 +42,6 @@ var gap1 = zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Gap 1"
 var offset = zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Offset").setValue(4);
 */
 
-
-if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
-    var nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT);
-} else if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
-    nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT);
-} else {
-    nullColor = 9;
-}
-
 if(layers.length > 0) {
     var newIn;
     var minIn = zilchLayer.outPoint;
@@ -49,18 +49,17 @@ if(layers.length > 0) {
     var maxOut = 0;
     var topIndx = layers.length;
     var newIndx = layers.length;
+    xPosArray = [];
+    yPosArray = [];
+    zPosArray = [];
     zilchLayer.moveToEnd();
     
     for(var i = 0; i < layers.length; i++){
-        xPosArray = [];
-        yPosArray = [];
-        zPosArray = [];
         newIn = layers[i].inPoint;
         newOut = layers[i].outPoint;
         newIndx = layers[i].index;
-        thisX = layers[i].property("Transform").property("ADBE Position_0");
-        thisY = layers[i].property("Transform").property("ADBE Position_1");
-        thisZ = layers[i].property("Transform").property("ADBE Position_2");
+        t = comp.time;
+        pos = layers[i].transform.position.valueAtTime(t,1);
         if(newIn < minIn) {
             minIn = newIn;
         }
@@ -70,17 +69,45 @@ if(layers.length > 0) {
         if(newIndx < zilchLayer.index) {
             zilchLayer.moveBefore(layers[i]);
         }
-        if (layers[i].parent == "") {
+        xPosArray.push(pos[0]);
+        yPosArray.push(pos[1]);
+        zPosArray.push(pos[2]);
+    }
+
+    zilchLayer.inPoint = minIn;
+    zilchLayer.outPoint = maxOut;
+
+    avgX = arrayAverage(xPosArray);
+    avgY = arrayAverage(yPosArray);
+    avgZ = arrayAverage(zPosArray);
+
+    zilchLayer.transform.position.setValue([avgX,avgY,avgZ]);
+    for(var i = 0; i < layers.length; i++){
+        if (layers[i].parent == "" || layers.length > 1) {
             layers[i].parent = zilchLayer;
-        } else {
+        } else if (layers.length == 1) {
             zilchLayer.parent = layers[i].parent;
             layers[i].parent = zilchLayer;
         }
     }
-    zilchLayer.inPoint = minIn;
-    zilchLayer.outPoint = maxOut;
 }
 
-zilchLayer.label = nullColor;
-
 app.endUndoGroup();
+
+function arrayAverage(arr){
+    var sum = 0;
+    if (arr.length>0) {
+        for(var i=0; i<arr.length; i++) {
+            sum += arr[i];
+        }
+    }
+
+    var numbersCnt = arr.length;
+    if (sum>0) {
+        var result = (sum / numbersCnt);
+    } else {
+        result = 0;
+    }
+
+    return result;
+}
