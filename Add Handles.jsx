@@ -1,4 +1,4 @@
-// JSSatchell Media 2023
+// JSSatchell 2023
 
 // Adds 1 second to the beginning and end of selected layers
 
