@@ -12,18 +12,14 @@ var allLayers = comp.layers;
 app.beginUndoGroup("Add zone");
 
 index=1;
-for (var i=1; i < allLayers.length; i++) {
-    if (allLayers[i].name.search("zone")>0)
+for (var i=1; i <= allLayers.length; i++) {
+    if (allLayers[i].name.search("zøne")>0)
         index++;
 }
 var zoneLayer = comp.layers.addShape();
-zoneLayer.name = " - zone " + index + " - ";
+zoneLayer.name = "|| zøne " + index + " ||";
 var zoneGroup = zoneLayer.property("Contents").addProperty("ADBE Vector Group");
 zoneGroup.name = "zone";
-var zoneShape = zoneGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
-zoneShape.property("Size").setValue([comp.width,comp.height]);
-var zoneFill = zoneGroup.property("Contents").addProperty("ADBE Vector Graphic - Fill");
-zoneFill.property("Color").setValue([0,0,0]);
 if (app.preferences.havePref("Label Preference Indices Section 5", "Solid Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
     var solidColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Solid Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT);
 } else if (app.preferences.havePref("Label Preference Indices Section 5", "Solid Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
@@ -31,6 +27,12 @@ if (app.preferences.havePref("Label Preference Indices Section 5", "Solid Label 
 } else {
     solidColor = 11;
 }
+zoneLayer.label = solidColor;
+
+var zoneShape = zoneGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
+zoneShape.property("Size").setValue([comp.width,comp.height]);
+var zoneFill = zoneGroup.property("Contents").addProperty("ADBE Vector Graphic - Fill");
+zoneFill.property("Color").setValue([0,0,0]);
 
 if(layers.length > 0) {
     var newIn;
@@ -58,7 +60,5 @@ if(layers.length > 0) {
     zoneLayer.inPoint = minIn;
     zoneLayer.outPoint = maxOut;
 }
-
-zoneLayer.label = solidColor;
 
 app.endUndoGroup();
