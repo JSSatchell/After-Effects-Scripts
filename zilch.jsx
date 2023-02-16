@@ -13,11 +13,11 @@ app.beginUndoGroup("Add zilch");
 
 index=1;
 for (var i=1; i <= allLayers.length; i++) {
-    if (allLayers[i].name.search("z'lch")>0)
+    if (allLayers[i].name.search("z lch")>0)
         index++;
 }
 var zilchLayer = comp.layers.addShape();
-zilchLayer.name = "» z'lch " + index + " «";
+zilchLayer.name = "» z lch " + index + " «";
 zilchLayer.guideLayer = 1;
 if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
     var nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT);
