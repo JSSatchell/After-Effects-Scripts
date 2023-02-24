@@ -1,7 +1,6 @@
 // JSSatchell 2023
 
 // For use as a "Snippet" with Labels 4 which can be found here: https://aescripts.com/labels/
-
 // This will add a marker of the selected color to all selected layers, or to the composition if no layer is selected
 
 app.beginUndoGroup ("Add Marker");
