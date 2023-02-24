@@ -1,4 +1,4 @@
-﻿// JSSatchell 2023
+// JSSatchell 2023
 
 // Adds or subtracts one from numbered layer names
 
