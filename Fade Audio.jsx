@@ -30,7 +30,7 @@ try { outMark = thisLayer.marker.key("Audio Out"); } catch (err) { outMark = fal
 \
 if ( !inMark && !outMark ) { 2 } else { value }';
 
-   layers[i].effect("Fade Audio")("In/Out").expression = 'ddBased = thisLayer.effect("Fade Video")("Based On").value;\
+   layers[i].effect("Fade Audio")("In/Out").expression = 'ddBased = thisLayer.effect("Fade Audio")("Based On").value;\
 \
 try { inMark = thisLayer.marker.key("Audio In"); } catch (err) { inMark = false; }\
 try { outMark = thisLayer.marker.key("Audio Out"); } catch (err) { outMark = false; }\
@@ -38,7 +38,7 @@ try { outMark = thisLayer.marker.key("Audio Out"); } catch (err) { outMark = fal
 if (ddBased == 1) {\
 if (inMark && outMark) {\
 value\
-} else if ( value != 4 && value != 1 ) {\
+} else if ( value != 4 ) {\
 if ( !inMark ){\
    3\
 } else if ( !outMark ) {\
