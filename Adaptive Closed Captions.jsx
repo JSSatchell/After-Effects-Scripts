@@ -16,6 +16,8 @@ var pseudoEffectData = {
 
 addTxt();
 addBG();
+bgLayer.selected = 0;
+txt.selected = 1;
 
 app.endUndoGroup();
 
@@ -25,17 +27,19 @@ function addTxt() {
     txt.effect("").name = "Caption Controls";
     // alert("Applied \"" + pseudoEffect.name + "\" Pseudo Effect.");
     var txtProp = txt.property("Source Text");
-    txtProp.expression = 'm = thisLayer;\
+    txtProp.expression = 'txtColor = effect("Caption Controls")("Text Color").value;\
+s = text.sourceText.style;\
+m = thisLayer.marker;\
 n=0;\
-if (m.marker.numKeys > 0){\
-n = m.marker.nearestKey(time).index;\
-if (m.marker.key(n).time > time) n--;\
+if (m.numKeys > 0){\
+    n = m.nearestKey(time).index;\
+    if (m.key(n).time > time)\
+        n--;\
 }\
-if (n > 0) {\
-    m.marker.key(n).comment\
-} else {\
-    ""\
-}';
+if (n > 0)\
+    s.setText(m.key(n).comment).setFillColor(txtColor)\
+else\
+s.setText("").setFillColor(txtColor)';
     var txtStyle = txtProp.value;
     txt.property("Anchor Point").expression = 's = thisLayer.sourceRectAtTime();\
 w = s.width;\
@@ -71,13 +75,13 @@ y = ogY+yAdj;\
     txtProp.setValue(txtStyle);
     txtProp.setValue("Line 1\nLine2");
 
-    txt.Effects.addProperty("Fill");
-    txt.effect("Fill").name = "Text Color";
-    txt.effect("Text Color").property("Color").expression = 'effect("Caption Controls")("Text Color")';
-
+    txt.effect("Caption Controls").property("BG Expansion").setValue(20);
+    txt.effect("Caption Controls").property("BG Opacity").setValue(90);
+    txt.effect("Caption Controls").property("Move to Top").addKey(txt.inPoint);
+;
     var m = new MarkerValue("Use markers\nto type captions");
     txt.property("Marker").setValueAtTime(txt.inPoint, m);
-    txt.label = 0;
+    // txt.label = 0;
 }
 
 function addBG() {
@@ -103,36 +107,10 @@ t=s.sourceRectAtTime().top;\
     var bgFill = bgGroup.property("Contents").addProperty("ADBE Vector Graphic - Fill");
     bgFill.property("Color").expression = 'thisComp.layer("CC_Text").effect("Caption Controls")("BG Color")';
 
-    bgLayer.property("Transform").property("Opacity").expression = 'txt = thisComp.layer("CC_Text").text.sourceText;\
-if (txt == "") {0} else {100}';
-    bgLayer.label = 0;
-}
-
-function addControl() {
-    bgLayer.name = "CC_BG";
-    var bgGroup = bgLayer.property("Contents").addProperty("ADBE Vector Group");
-    bgLayer.parent = txt;
-    bgLayer.property("Position").setValue([0,0]);
-    
-    var bgShape = bgGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
-    bgShape.property("Size").expression = 'txt = thisComp.layer("CC_Text");\
-nw = txt.sourceRectAtTime().width;\
-nh = txt.sourceRectAtTime().height;\
-buffer = txt.effect("Caption Controls")("BG Expansion").value;\
-\
-[nw + buffer, nh + buffer]';
-    bgShape.property("Position").expression = 's=thisComp.layer("CC_Text");\
-w=s.sourceRectAtTime().width/2;\
-h=s.sourceRectAtTime().height/2;\
-l=s.sourceRectAtTime().left;\
-t=s.sourceRectAtTime().top;\
-\
-[w+l,h+t]';
-    var bgFill = bgGroup.property("Contents").addProperty("ADBE Vector Graphic - Fill");
-    bgFill.property("Color").expression = 'thisComp.layer("CC_Text").effect("Caption Controls")("BG Color")';
-
-    bgLayer.property("Transform").property("Opacity").expression = 'txt = thisComp.layer("CC_Text").text.sourceText;\
-if (txt == "") {0} else {100}';
+    bgLayer.property("Transform").property("Opacity").expression = 'txt = thisComp.layer("CC_Text");\
+if (txt.text.sourceText == "") {0} else {txt.effect("Caption Controls")("BG Opacity").value}';
+    bgLayer.property("Transform").property("Position").expression = 'pos = thisComp.layer("CC_Text").transform.position;\
+pos-pos';
     bgLayer.label = 0;
 }
 
