@@ -4,26 +4,27 @@ JSSatchell 2023
 Use shape layers to replace Nulls (zilch), Solids (zone), and Adjustment Layers (zest)
 
 Inspired by:
-   Void – https://www.battleaxe.co/void
-   No Solids – https://elementsupply.co/products/scripts/nosolids/
-   Turbo Layers – https://aescripts.com/turbolayers/
+- Void – https://www.battleaxe.co/void
+- No Solids – https://elementsupply.co/products/scripts/nosolids/
+- Turbo Layers – https://aescripts.com/turbolayers/
 
- Distinct features:
-   – The duration of any created layer matches the combined length
-     of the currently selected layers
-   – zest (Adjustment Layer) always fills comp
-   – Option for zone (Solid) to always fill comp
+None of the above achieved everything I wanted in one package, so I took it as a scripting challenge to create my own set of tools.
 
- WIP:
-   – Option to create one zilch (Null) per selected layer
-   – Option to transfer all transform keyframes from layer to zilch layer
-   – zone width, height, square, roundness, and color controls
+Distinct features:
+- The duration of any created layer matches the combined length of the currently selected layers
+- zest (Adjustment Layer) always fills comp and stays centered (effectively locked without actually being locked in timeline)
+- Option for zone (Solid) to always fill comp
+- zone width, height, square, roundness, and color controls
 
- KBar arguments:
-   zilch = New Null Layer
-   zone = New Solid Layer
-   zest = New Adjustment Layer
- Leave blank to open as a panel
+WIP:
+- Option to create one zilch (Null) per selected layer
+- Option to transfer all transform keyframes from layer to zilch layer
+
+KBar arguments for zZz.jsx:
+- zilch = New Null Layer
+- zone = New Solid Layer
+- zest = New Adjustment Layer
+- Leave blank to open as a panel
 
 *********************************************/
 
@@ -167,6 +168,7 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
                 zilchLayer.moveBefore(layers[i]);
             if(layers[i].parent!=oldParent)
                 oldParentSet=0;
+            thisParent = layers[i].parent;
             layers[i].parent = null;
             pos = layers[i].transform.position.valueAtTime(t,1);
             xPosArray.push(pos[0]);
@@ -189,6 +191,8 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
                 oYArray.push(0);
                 oZArray.push(0);
             }
+            if(thisParent != null && thisParent in layers === false)
+                layers[i].parent = thisParent;
         }
     
         zilchLayer.inPoint = minIn;
@@ -213,7 +217,8 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
         }
 
         for(var i = 0; i < layers.length; i++){
-            layers[i].parent = zilchLayer;
+            if (layers[i].parent == null)
+                layers[i].parent = zilchLayer;
         }
         if (oldParentSet == 1) {
             zilchLayer.parent = oldParent;
@@ -550,7 +555,6 @@ function buildPanel() {
 
 function arrayAverage(arr){
     var sum = 0;
-    var neg = 0;
     if (arr.length>0) {
         for(var i=0; i<arr.length; i++) {
             sum += arr[i];
