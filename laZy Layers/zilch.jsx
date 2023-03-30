@@ -1,9 +1,6 @@
 // JSSatchell 2023
 
-// zilch is my version of creating a new Null, or Battle Axe's Void
-
-// Shamelessly inspired by Battle Axe's awesome Void scripts which can be found here: https://www.battleaxe.co/void
-// Really I just missed the feature of Turbo Layers to create Solids and Adjustment Layers that were the same length as the selected layers, so I took it as a scripting challenge to build my own toolkit
+// zilch is my version of creating a new Null
 
 var comp = app.project.activeItem;
 var layers = comp.selectedLayers;
@@ -21,7 +18,8 @@ for (var i=1; i <= allLayers.length; i++) {
         index++;
 }
 var zilchLayer = comp.layers.addShape();
-zilchLayer.name = "> z lch " + index + " <";
+zilchLayer.name = "» z lch " + index + " «";
+//zilchLayer.name = "+ z lch " + index + " +"; // if the symbols above cause problems
 zilchLayer.guideLayer = 1;
 if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
     var nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT);
@@ -32,19 +30,17 @@ if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label I
 }
 zilchLayer.label = nullColor;
 
-//zilchLayer.property("Opacity").setValue("50");
-
-applyPseudoEffect(pseudoEffectData, zilchLayer.property("ADBE Effect Parade"));
-zilchLayer.effect("").name = "z lch Expansion";
+applyPseudoEffect(zlchExpansion, zilchLayer.property("ADBE Effect Parade"));
+zilchLayer.effect("").name = "z lch";
 
 var zilchGroup = zilchLayer.property("Contents").addProperty("ADBE Vector Group");
 zilchGroup.name = "z lch shape";
 //zilchGroup.property("Transform").property("Opacity").setValue(50);
 var zilchShape = zilchGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
 zilchShape.property("Size").setValue([100,100]);
-zilchShape.property("Size").expression = 'w = thisLayer.effect("z lch Expansion")("Width").value*10;\
-h = thisLayer.effect("z lch Expansion")("Height").value*10;\
-s = thisLayer.effect("z lch Expansion")("Square").value;\
+zilchShape.property("Size").expression = 'w = thisLayer.effect("z lch")("Width").value*10;\
+h = thisLayer.effect("z lch")("Height").value*10;\
+s = thisLayer.effect("z lch")("Square").value;\
 nW = value[0]+w\
 nH = value[1]+h\
 if(s==1) { [nH = nW] } else { nH = value[1]+h }\
@@ -52,7 +48,7 @@ if(s==1) { [nH = nW] } else { nH = value[1]+h }\
 var zilchStroke = zilchGroup.property("Contents").addProperty("ADBE Vector Graphic - Stroke");
 var strokeColor = zilchStroke.property("Color").setValue([255,0,200]);
 zilchStroke.property("Stroke Width").setValue(2);
-zilchStroke.property("Stroke Width").expression = "// via battleaxe.co/void\
+zilchStroke.property("Stroke Width").expression = "// via https://help.battleaxe.co/freebies/buttcapper.html#maintain-stroke-width\
 \
 value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
 
@@ -66,26 +62,56 @@ if(layers.length > 0) {
     xPosArray = [];
     yPosArray = [];
     zPosArray = [];
+    rXArray = [];
+    rYArray = [];
+    rZArray = [];
+    oXArray = [];
+    oYArray = [];
+    oZArray = [];
     zilchLayer.moveToEnd();
+    oldParent = layers[0].parent;
+    oldParentSet = 1;
     
     for(var i = 0; i < layers.length; i++){
         newIn = layers[i].inPoint;
         newOut = layers[i].outPoint;
         newIndx = layers[i].index;
         t = comp.time;
-        pos = layers[i].transform.position.valueAtTime(t,1);
-        if(newIn < minIn) {
+        if (newIn>newOut) { // Check for reversed layers
+            var flip = newOut;
+            newOut = newIn;
+            newIn = flip;
+        }
+        if(newIn < minIn)
             minIn = newIn;
-        }
-        if(newOut > maxOut) {
+        if(newOut > maxOut)
             maxOut = newOut;
-        }
-        if(newIndx < zilchLayer.index) {
+        if(newIndx < zilchLayer.index)
             zilchLayer.moveBefore(layers[i]);
-        }
+        if(layers[i].parent!=oldParent)
+            oldParentSet=0;
+        layers[i].parent = null;
+        pos = layers[i].transform.position.valueAtTime(t,1);
         xPosArray.push(pos[0]);
         yPosArray.push(pos[1]);
         zPosArray.push(pos[2]);
+        if (layers[i].threeDLayer) {
+            zilchLayer.threeDLayer = 1;
+            rXArray.push(layers[i].transform.xRotation.valueAtTime(t,1));
+            rYArray.push(layers[i].transform.yRotation.valueAtTime(t,1));
+            rZArray.push(layers[i].transform.zRotation.valueAtTime(t,1));
+            o = layers[i].transform.orientation.valueAtTime(t,1);
+            oXArray.push(o[0]);
+            oYArray.push(o[1]);
+            oZArray.push(o[2]);
+        } else {
+            rXArray.push(0);
+            rYArray.push(0);
+            rZArray.push(0);
+            oXArray.push(0);
+            oYArray.push(0);
+            oZArray.push(0);
+        }
     }
 
     zilchLayer.inPoint = minIn;
@@ -94,15 +120,26 @@ if(layers.length > 0) {
     avgX = arrayAverage(xPosArray);
     avgY = arrayAverage(yPosArray);
     avgZ = arrayAverage(zPosArray);
+    oXAvg = arrayAverage(oXArray);
+    oYAvg = arrayAverage(oYArray);
+    oZAvg = arrayAverage(oZArray);
+    rXAvg = arrayAverage(rXArray);
+    rYAvg = arrayAverage(rYArray);
+    rZAvg = arrayAverage(rZArray);
 
     zilchLayer.transform.position.setValue([avgX,avgY,avgZ]);
+    if(zilchLayer.threeDLayer) {
+        zilchLayer.transform.orientation.setValue([oXAvg,oYAvg,oZAvg]);
+        zilchLayer.transform.xRotation.setValue(rXAvg);
+        zilchLayer.transform.yRotation.setValue(rYAvg);
+        zilchLayer.transform.zRotation.setValue(rZAvg);
+    }
+
     for(var i = 0; i < layers.length; i++){
-        if (layers[i].parent == "" || layers.length > 1) {
-            layers[i].parent = zilchLayer;
-        } else if (layers.length == 1) {
-            zilchLayer.parent = layers[i].parent;
-            layers[i].parent = zilchLayer;
-        }
+        layers[i].parent = zilchLayer;
+    }
+    if (oldParentSet == 1) {
+        zilchLayer.parent = oldParent;
     }
 }
 
@@ -125,12 +162,16 @@ function arrayAverage(arr){
     }
 
     var numbersCnt = arr.length;
-    if (sum>0) {
-        var result = (sum / numbersCnt);
-    } else {
+    if (sum!=0) {
+        if (sum<0){
+            sum*=-1;
+            var result = (sum / numbersCnt) * -1;
+        } else
+            result = (sum / numbersCnt);
+
+    } else if (sum==0) {
         result = 0;
     }
-
     return result;
 }
 
