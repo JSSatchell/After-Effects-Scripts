@@ -17,6 +17,8 @@ WIP:
 - Option to create one zilch (Null) per selected layer
 - Option to transfer all transform keyframes from layer to zilch layer
 
+zZz.jsx is the master file that will work with KBar or open a UI panel. The others are headless versions.
+
 KBar arguments for zZz.jsx:
 - zilch = New Null Layer
 - zone = New Solid Layer
