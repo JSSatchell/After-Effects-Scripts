@@ -90,6 +90,7 @@ if(layers.length > 0) {
             zilchLayer.moveBefore(layers[i]);
         if(layers[i].parent!=oldParent)
             oldParentSet=0;
+        thisParent = layers[i].parent;
         layers[i].parent = null;
         pos = layers[i].transform.position.valueAtTime(t,1);
         xPosArray.push(pos[0]);
@@ -112,6 +113,8 @@ if(layers.length > 0) {
             oYArray.push(0);
             oZArray.push(0);
         }
+        if(thisParent != null && thisParent in layers === false)
+            layers[i].parent = thisParent;
     }
 
     zilchLayer.inPoint = minIn;
@@ -136,7 +139,8 @@ if(layers.length > 0) {
     }
 
     for(var i = 0; i < layers.length; i++){
-        layers[i].parent = zilchLayer;
+        if (layers[i].parent == null)
+            layers[i].parent = zilchLayer;
     }
     if (oldParentSet == 1) {
         zilchLayer.parent = oldParent;
