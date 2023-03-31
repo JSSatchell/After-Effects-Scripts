@@ -3,8 +3,6 @@
 // For use with KBar3 which can be found here: https://aescripts.com/kbar/
 // Pass an argument of 1-16 to add a marker of a specific color, all other values will create a marker of the default color.
 
-var comp = app.project.activeItem;
-var layers = comp.selectedLayers;
 var button = (typeof kbar !== 'undefined') ? kbar.button : null;
 
 if (button) {
@@ -23,9 +21,9 @@ if (button) {
 }
 
 function addColorMarker(colVal) {
-    app.beginUndoGroup ("Add Marker");
     var comp = app.project.activeItem;
     var layers = comp.selectedLayers;
+    app.beginUndoGroup ("Add Marker");
     var m = new MarkerValue("");
     m.label = colVal;
     if (layers.length > 0) {
@@ -37,5 +35,5 @@ function addColorMarker(colVal) {
         var t = comp.time;
         comp.markerProperty.setValueAtTime(t, m);
     }
-    app.endUndoGroup ();
+    app.endUndoGroup();
 }
