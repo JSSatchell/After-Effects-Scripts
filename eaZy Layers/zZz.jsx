@@ -29,11 +29,13 @@ KBar arguments for zZz.jsx:
 *********************************************/
 
 var kButton = (typeof kbar !== 'undefined') ? kbar.button : null;
+
 var zlchExpansion = {
     name: "zlch Expansion",
     matchName: "Pseudo/PEM zlch Expansion",
     binary: "RIFX\x00\x00\n\nFaFXhead\x00\x00\x00\x10\x00\x00\x00\x03\x00\x00\x00D\x00\x00\x00\x01\x01\x00\x00\x00LIST\x00\x00\t\u00E6bescbeso\x00\x00\x008\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00]\u00A8\x00\x1D\u00F8R\x00\x00\x00\x00\x00d\x00d\x00d\x00d?\u00F0\x00\x00\x00\x00\x00\x00?\u00F0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\u00FF\u00FF\u00FF\u00FFLIST\x00\x00\x00\u00ACtdsptdot\x00\x00\x00\x04\u00FF\u00FF\u00FF\u00FFtdpl\x00\x00\x00\x04\x00\x00\x00\x02LIST\x00\x00\x00@tdsitdix\x00\x00\x00\x04\u00FF\u00FF\u00FF\u00FFtdmn\x00\x00\x00(ADBE Effect Parade\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00LIST\x00\x00\x00@tdsitdix\x00\x00\x00\x04\x00\x00\x00\x00tdmn\x00\x00\x00(Pseudo/PEM zlch Expansion\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00tdsn\x00\x00\x00\x10zilch Expansion\x00LIST\x00\x00\x00dtdsptdot\x00\x00\x00\x04\u00FF\u00FF\u00FF\u00FFtdpl\x00\x00\x00\x04\x00\x00\x00\x01LIST\x00\x00\x00@tdsitdix\x00\x00\x00\x04\u00FF\u00FF\u00FF\u00FFtdmn\x00\x00\x00(ADBE End of path sentinel\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00LIST\x00\x00\bbsspcfnam\x00\x00\x000\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00LIST\x00\x00\x03JparTparn\x00\x00\x00\x04\x00\x00\x00\x04tdmn\x00\x00\x00(Pseudo/PEM zlch Expansion-0000\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00pard\x00\x00\x00\u0094\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x0E\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\u00FF\u00FF\u00FF\u00FF\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00tdmn\x00\x00\x00(Pseudo/PEM zlch Expansion-0001\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00pard\x00\x00\x00\u0094\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04Square\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00pdnm\x00\x00\x00\x01\x00\x00tdmn\x00\x00\x00(Pseudo/PEM zlch Expansion-0002\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00pard\x00\x00\x00\u0094\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\nWidth\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\u00C1 \x00\x00CH\x00\x00\u00C1 \x00\x00A \x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00tdmn\x00\x00\x00(Pseudo/PEM zlch Expansion-0003\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00pard\x00\x00\x00\u0094\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\nHeight\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\u00C1 \x00\x00CH\x00\x00\u00C1 \x00\x00A \x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00LIST\x00\x00\x04\u00CCtdgptdsb\x00\x00\x00\x04\x00\x00\x00\x01tdsn\x00\x00\x00\x10zilch Expansion\x00tdmn\x00\x00\x00(Pseudo/PEM zlch Expansion-0000\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00LIST\x00\x00\x00\u00DAtdbstdsb\x00\x00\x00\x04\x00\x00\x00\x03tdsn\x00\x00\x00\x01\x00\x00tdb4\x00\x00\x00|\u00DB\u0099\x00\x01\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00\x02X?\x1A6\u00E2\u00EB\x1CC-?\u00F0\x00\x00\x00\x00\x00\x00?\u00F0\x00\x00\x00\x00\x00\x00?\u00F0\x00\x00\x00\x00\x00\x00?\u00F0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x04\u00C0\u00C0\u00C0\u00FF\u00C0\u00C0\u00C0\x00\x00\x00\x00\u0080\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00cdat\x00\x00\x00(\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00tdpi\x00\x00\x00\x04\x00\x00\x00\x0Etdmn\x00\x00\x00(Pseudo/PEM zlch Expansion-0001\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00LIST\x00\x00\x00\u00D4tdbstdsb\x00\x00\x00\x04\x00\x00\x00\x01tdsn\x00\x00\x00\x07Square\x00\x00tdb4\x00\x00\x00|\u00DB\u0099\x00\x01\x00\x01\x00\x00\x00\x01\x00\x04\x00\x00]\u00A8?\x1A6\u00E2\u00EB\x1CC-?\u00F0\x00\x00\x00\x00\x00\x00?\u00F0\x00\x00\x00\x00\x00\x00?\u00F0\x00\x00\x00\x00\x00\x00?\u00F0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00cdat\x00\x00\x00(?\u00F0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00tdmn\x00\x00\x00(Pseudo/PEM zlch Expansion-0002\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00LIST\x00\x00\x00\u00F2tdbstdsb\x00\x00\x00\x04\x00\x00\x00\x01tdsn\x00\x00\x00\x06Width\x00tdb4\x00\x00\x00|\u00BD\u0099\x00\x01\x00\x01\x00\x00\x00\x01\x00\u00FF\x00\x00]\u00A8\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00cdat\x00\x00\x00(\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00tdum\x00\x00\x00\b\u00C0$\x00\x00\x00\x00\x00\x00tduM\x00\x00\x00\b@$\x00\x00\x00\x00\x00\x00tdmn\x00\x00\x00(Pseudo/PEM zlch Expansion-0003\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00LIST\x00\x00\x00\u00F4tdbstdsb\x00\x00\x00\x04\x00\x00\x00\x01tdsn\x00\x00\x00\x07Height\x00\x00tdb4\x00\x00\x00|\u00BD\u0099\x00\x01\x00\x01\x00\x00\x00\x01\x00\u00FF\x00\x00]\u00A8\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00cdat\x00\x00\x00(\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00tdum\x00\x00\x00\b\u00C0$\x00\x00\x00\x00\x00\x00tduM\x00\x00\x00\b@$\x00\x00\x00\x00\x00\x00tdmn\x00\x00\x00(ADBE Group End\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
 };
+
 var zoneControl = {
     name: "zone Controls",
     matchName: "Pseudo/PEM zone Controls",
@@ -47,21 +49,15 @@ if (kButton) {
     var allLayers = comp.layers;
     switch(kButton.argument) {
         case 'zilch':
-            app.beginUndoGroup("Add zilch");
             zilch();
-            app.endUndoGroup();
         break;
 
         case 'zest':
-            app.beginUndoGroup("Add zest");
             zest();
-            app.endUndoGroup();
         break;
 
         case 'zone':
-            app.beginUndoGroup("Add zone");
             zone();
-            app.endUndoGroup();
         break;
 
         case '':
@@ -78,9 +74,13 @@ if (kButton) {
 }
 
 function zilch() {
-
-    // app.beginUndoGroup("Add zilch");
+    var comp = app.project.activeItem;
+    var layers = comp.selectedLayers;
+    var allLayers = comp.layers;
     index=1;
+
+    app.beginUndoGroup("Add zilch")
+
     for (var i=1; i <= allLayers.length; i++) {
         if (allLayers[i].name.search("z lch")>0)
             index++;
@@ -125,7 +125,6 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
         var minIn = zilchLayer.outPoint;
         var newOut;
         var maxOut = 0;
-        var topIndx = layers.length;
         var newIndx = layers.length;
         xPosArray = [];
         yPosArray = [];
@@ -139,7 +138,7 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
         zilchLayer.moveToEnd();
         oldParent = layers[0].parent;
         oldParentSet = 1;
-        
+
         for(var i = 0; i < layers.length; i++){
             newIn = layers[i].inPoint;
             newOut = layers[i].outPoint;
@@ -181,8 +180,14 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
                 oYArray.push(0);
                 oZArray.push(0);
             }
-            if(thisParent != null && thisParent in layers === false)
-                layers[i].parent = thisParent;
+            
+            if(thisParent != null) {
+                for(var g = 0; g < layers.length; g++){
+                    if(thisParent.name == layers[g].name)
+                        layers[i].parent = thisParent;
+                }
+            }
+            
         }
     
         zilchLayer.inPoint = minIn;
@@ -223,158 +228,17 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
     app.executeCommand(2771);
     app.executeCommand(2771);
     
-    //app.endUndoGroup();
+    app.endUndoGroup();
 }
-
-// WIP
-/*
-function onePer() {
-        // app.beginUndoGroup("Add zilch");
-        index=1;
-        for (var i=1; i <= allLayers.length; i++) {
-            if (allLayers[i].name.search("z lch")>0)
-                index++;
-        }
-        var zilchLayer = comp.layers.addShape();
-        zilchLayer.name = "» z lch " + index + " «";
-        //zilchLayer.name = "+ z lch " + index + " +"; // if the symbols above cause problems
-        zilchLayer.guideLayer = 1;
-        if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
-            var nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT);
-        } else if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
-            nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT);
-        } else {
-            nullColor = 9;
-        }
-        zilchLayer.label = nullColor;
-    
-        applyPseudoEffect(zlchExpansion, zilchLayer.property("ADBE Effect Parade"));
-        zilchLayer.effect("").name = "z lch";
-    
-        var zilchGroup = zilchLayer.property("Contents").addProperty("ADBE Vector Group");
-        zilchGroup.name = "z lch shape";
-        //zilchGroup.property("Transform").property("Opacity").setValue(50);
-        var zilchShape = zilchGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
-        zilchShape.property("Size").setValue([100,100]);
-        zilchShape.property("Size").expression = 'w = thisLayer.effect("z lch")("Width").value*10;\
-    h = thisLayer.effect("z lch")("Height").value*10;\
-    s = thisLayer.effect("z lch")("Square").value;\
-    nW = value[0]+w\
-    nH = value[1]+h\
-    if(s==1) { [nH = nW] } else { nH = value[1]+h }\
-    [nW,nH]';
-        var zilchStroke = zilchGroup.property("Contents").addProperty("ADBE Vector Graphic - Stroke");
-        var strokeColor = zilchStroke.property("Color").setValue([255,0,200]);
-        zilchStroke.property("Stroke Width").setValue(2);
-        zilchStroke.property("Stroke Width").expression = "// via https://help.battleaxe.co/freebies/buttcapper.html#maintain-stroke-width\
-    \
-    value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
-        
-        if(layers.length > 0) {
-            var newIn;
-            var minIn = zilchLayer.outPoint;
-            var newOut;
-            var maxOut = 0;
-            var topIndx = layers.length;
-            var newIndx = layers.length;
-            xPosArray = [];
-            yPosArray = [];
-            zPosArray = [];
-            rXArray = [];
-            rYArray = [];
-            rZArray = [];
-            oXArray = [];
-            oYArray = [];
-            oZArray = [];
-            zilchLayer.moveToEnd();
-            oldParent = layers[0].parent;
-            oldParentSet = 1;
-            
-            for(var i = 0; i < layers.length; i++){
-                newIn = layers[i].inPoint;
-                newOut = layers[i].outPoint;
-                newIndx = layers[i].index;
-                t = comp.time;
-                if (newIn>newOut) { // Check for reversed layers
-                    var flip = newOut;
-                    newOut = newIn;
-                    newIn = flip;
-                }
-                if(newIn < minIn)
-                    minIn = newIn;
-                if(newOut > maxOut)
-                    maxOut = newOut;
-                if(newIndx < zilchLayer.index)
-                    zilchLayer.moveBefore(layers[i]);
-                if(layers[i].parent!=oldParent)
-                    oldParentSet=0;
-                layers[i].parent = null;
-                pos = layers[i].transform.position.valueAtTime(t,1);
-                xPosArray.push(pos[0]);
-                yPosArray.push(pos[1]);
-                zPosArray.push(pos[2]);
-                if (layers[i].threeDLayer) {
-                    zilchLayer.threeDLayer = 1;
-                    rXArray.push(layers[i].transform.xRotation.valueAtTime(t,1));
-                    rYArray.push(layers[i].transform.yRotation.valueAtTime(t,1));
-                    rZArray.push(layers[i].transform.zRotation.valueAtTime(t,1));
-                    o = layers[i].transform.orientation.valueAtTime(t,1);
-                    oXArray.push(o[0]);
-                    oYArray.push(o[1]);
-                    oZArray.push(o[2]);
-                } else {
-                    rXArray.push(0);
-                    rYArray.push(0);
-                    rZArray.push(0);
-                    oXArray.push(0);
-                    oYArray.push(0);
-                    oZArray.push(0);
-                }
-            }
-        
-            zilchLayer.inPoint = minIn;
-            zilchLayer.outPoint = maxOut;
-        
-            avgX = arrayAverage(xPosArray);
-            avgY = arrayAverage(yPosArray);
-            avgZ = arrayAverage(zPosArray);
-            oXAvg = arrayAverage(oXArray);
-            oYAvg = arrayAverage(oYArray);
-            oZAvg = arrayAverage(oZArray);
-            rXAvg = arrayAverage(rXArray);
-            rYAvg = arrayAverage(rYArray);
-            rZAvg = arrayAverage(rZArray);
-        
-            zilchLayer.transform.position.setValue([avgX,avgY,avgZ]);
-            if(zilchLayer.threeDLayer) {
-                zilchLayer.transform.orientation.setValue([oXAvg,oYAvg,oZAvg]);
-                zilchLayer.transform.xRotation.setValue(rXAvg);
-                zilchLayer.transform.yRotation.setValue(rYAvg);
-                zilchLayer.transform.zRotation.setValue(rZAvg);
-            }
-    
-            for(var i = 0; i < layers.length; i++){
-                layers[i].parent = zilchLayer;
-            }
-            if (oldParentSet == 1) {
-                zilchLayer.parent = oldParent;
-            }
-        }
-    
-        zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Dash 1").setValue(2);
-        zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Gap 1").setValue(2);
-        zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Offset").setValue(4);
-    
-        // Collapse properties
-        app.executeCommand(2771);
-        app.executeCommand(2771);
-}
-*/
 
 function zest() {
-    //app.beginUndoGroup("Add zest");
-
+    var comp = app.project.activeItem;
+    var layers = comp.selectedLayers;
+    var allLayers = comp.layers;
     index=1;
+    
+    app.beginUndoGroup("Add zest");
+
     for (var i=1; i <= allLayers.length; i++) {
         if (allLayers[i].name.search("zëst")>0)
             index++;
@@ -406,7 +270,6 @@ function zest() {
         var minIn = zestLayer.outPoint;
         var newOut;
         var maxOut = 0;
-        var topIndx = layers.length;
         var newIndx = layers.length;
         zestLayer.moveToEnd();
         
@@ -433,13 +296,17 @@ function zest() {
         zestLayer.outPoint = maxOut;
     }
     
-    //app.endUndoGroup();
+    app.endUndoGroup();
 }
 
 function zone() {
-    //app.beginUndoGroup("Add zone");
-
+    var comp = app.project.activeItem;
+    var layers = comp.selectedLayers;
+    var allLayers = comp.layers;
     index=1;
+
+    app.beginUndoGroup("Add zone");
+
     for (var i=1; i <= allLayers.length; i++) {
         if (allLayers[i].name.search("zøne")>0)
             index++;
@@ -520,7 +387,7 @@ if ( f==1 && !thisLayer.hasParent) {\
         zoneLayer.outPoint = maxOut;
     }
     
-    //app.endUndoGroup();
+    app.endUndoGroup();
 }
 
 function buildPanel() {
@@ -565,6 +432,9 @@ function arrayAverage(arr){
     return result;
 }
 
+
+// via NT Production: https://youtu.be/FOazhcjKFYU
+// and RenderTom: https://bitbucket.org/rendertom/_snippets_/src/c52a28cb7bff72f1ca8a6f4bf3824dc62a342f8a/After%20Effects/Apply%20Pseudo%20Effect%20as%20Animation%20Preset.jsx
 function applyPseudoEffect(pseudoEffectData, effectsProp) {
     var pseudoEffect,
         ffxFile,
