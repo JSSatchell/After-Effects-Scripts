@@ -1,12 +1,14 @@
 // JSSatchell 2023
 
 // For use as a "Snippet" with Labels 4 which can be found here: https://aescripts.com/labels/
-// This will add a marker of the selected color to all selected layers, or to the composition if no layer is selected
 
-app.beginUndoGroup ("Add Marker");
+// This will add a marker of the selected color to all selected layers, or to the composition if no layer is selected
 
 var comp = app.project.activeItem;
 var layers = comp.selectedLayers;
+
+app.beginUndoGroup("Add Marker");
+
 var m = new MarkerValue("");
 m.label = Labels.index;
 if (layers.length > 0) {
@@ -19,4 +21,4 @@ if (layers.length > 0) {
     comp.markerProperty.setValueAtTime(t, m);
 }
 
-app.endUndoGroup ();
+app.endUndoGroup();
