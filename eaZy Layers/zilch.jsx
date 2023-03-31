@@ -12,7 +12,8 @@ var pseudoEffectData = {
 };
 
 app.beginUndoGroup("Add zilch");
-index=1;
+
+var index = 1;
 for (var i=1; i <= allLayers.length; i++) {
     if (allLayers[i].name.search("z lch")>0)
         index++;
@@ -57,7 +58,6 @@ if(layers.length > 0) {
     var minIn = zilchLayer.outPoint;
     var newOut;
     var maxOut = 0;
-    var topIndx = layers.length;
     var newIndx = layers.length;
     xPosArray = [];
     yPosArray = [];
@@ -71,7 +71,7 @@ if(layers.length > 0) {
     zilchLayer.moveToEnd();
     oldParent = layers[0].parent;
     oldParentSet = 1;
-    
+
     for(var i = 0; i < layers.length; i++){
         newIn = layers[i].inPoint;
         newOut = layers[i].outPoint;
@@ -113,8 +113,14 @@ if(layers.length > 0) {
             oYArray.push(0);
             oZArray.push(0);
         }
-        if(thisParent != null && thisParent in layers === false)
-            layers[i].parent = thisParent;
+        
+        if(thisParent != null) {
+            for(var g = 0; g < layers.length; g++){
+                if(thisParent.name == layers[g].name)
+                    layers[i].parent = thisParent;
+            }
+        }
+        
     }
 
     zilchLayer.inPoint = minIn;
