@@ -1,5 +1,10 @@
 // JSSatchell 2023
 
+// Creates a text layer and a shape layer.
+// Add markers to the text layer to create your captions
+// The shape layer will adapt to the size of the text layer
+// Position, shape size, transparency and color controls provided via pseudo effect
+
 var comp = app.project.activeItem;
 var currentLayers = comp.selectedLayers;
 
@@ -25,7 +30,6 @@ function addTxt() {
     txt.name = "CC_Text";
     var pseudoEffect = applyPseudoEffect(pseudoEffectData, txt.property("ADBE Effect Parade"));
     txt.effect("").name = "Caption Controls";
-    // alert("Applied \"" + pseudoEffect.name + "\" Pseudo Effect.");
     var txtProp = txt.property("Source Text");
     txtProp.expression = 'txtColor = effect("Caption Controls")("Text Color").value;\
 s = text.sourceText.style;\
@@ -75,10 +79,8 @@ y = ogY+yAdj;\
     txtProp.setValue(txtStyle);
     txtProp.setValue("Line 1\nLine2");
 
-    txt.effect("Caption Controls").property("BG Expansion").setValue(20);
-    txt.effect("Caption Controls").property("BG Opacity").setValue(90);
     txt.effect("Caption Controls").property("Move to Top").addKey(txt.inPoint);
-;
+
     var m = new MarkerValue("Use markers\nto type captions");
     txt.property("Marker").setValueAtTime(txt.inPoint, m);
     // txt.label = 0;
