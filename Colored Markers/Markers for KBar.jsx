@@ -10,13 +10,13 @@ var button = (typeof kbar !== 'undefined') ? kbar.button : null;
 if (button) {
     try {
         var argNum = parseInt(button.argument);
-        if (argNum <= 16) {
+        if (argNum <= 16 && argNum >= 0) {
             addColorMarker(argNum);
         } else {
-            addDefaultMarker();
+            addColorMarker(0);
         }
     } catch (error) {
-        addDefaultMarker();
+        addColorMarker(0);
     }
 } else {
     Window.alert("Please use with KBar.");
@@ -28,24 +28,6 @@ function addColorMarker(colVal) {
     var layers = comp.selectedLayers;
     var m = new MarkerValue("");
     m.label = colVal;
-    if (layers.length > 0) {
-        for(var i = 0; i < layers.length; i++) {
-            var t = layers[i].time;
-            layers[i].property("Marker").setValueAtTime(t, m);
-        }
-    } else {
-        var t = comp.time;
-        comp.markerProperty.setValueAtTime(t, m);
-    }
-    app.endUndoGroup ();
-}
-
-function addDefaultMarker() {
-    app.beginUndoGroup ("Add Marker");
-    var comp = app.project.activeItem;
-    var layers = comp.selectedLayers;
-    var m = new MarkerValue("");
-    // m.label = button.argument;
     if (layers.length > 0) {
         for(var i = 0; i < layers.length; i++) {
             var t = layers[i].time;
