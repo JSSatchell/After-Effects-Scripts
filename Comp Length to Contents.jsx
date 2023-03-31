@@ -2,54 +2,66 @@
 
 // Sets comp duration based on the length of the selected layers, or else all layers in the comp
 
+// Compare to the Zack Lovatt script "Trim Comp to Contents"
+// https://aescripts.com/trim-to-comp-contents/
+// This just gives you options for only modifying the in or out point of the comp
+
+// When using the panel, press "Alt" to include locked layers
+
 // KBar arguments:
 // - in = Adjust beginning of comp to selected layer with earliest in point
 // - out = Adjust end of comp to selected layer with latest end point
 // - in/out = Adjust beginning and end of comp to fist and last selected layer
 // Leave blank to open panel
-// Add "-i" to the end of any argument to ignore locked layers
+// Add "-i" to the end of any argument or hold "Alt" to include locked layers
 
 
 var kButton = (typeof kbar !== 'undefined') ? kbar.button : null;
-
 if (kButton) {
-    var comp = app.project.activeItem;
-    var layers = comp.selectedLayers;
-    var allLayers = comp.layers;
+    var keyState = ScriptUI.environment.keyboardState;
     switch(kButton.argument) {
         case 'in':
             app.beginUndoGroup('Change comp duration');
-            compLength(1, 0);
+            if(keyState.altKey)
+                compLength(1, 0);
+            else
+                compLength(1, 1);
             app.endUndoGroup();
         break;
 
         case 'out':
             app.beginUndoGroup('Change comp duration');
-            compLength(2, 0);
+            if(keyState.altKey)
+                compLength(2, 0);
+            else
+                compLength(2, 1);
             app.endUndoGroup();
         break;
 
         case 'in/out':
             app.beginUndoGroup('Change comp duration');
-            compLength(3, 0);
+            if(keyState.altKey)
+                compLength(3, 0);
+            else
+                compLength(3, 1);
             app.endUndoGroup();
         break;
 
         case 'in-i':
             app.beginUndoGroup('Change comp duration');
-            compLength(1, 1);
+            compLength(1, 0);
             app.endUndoGroup();
         break;
 
         case 'out-i':
             app.beginUndoGroup('Change comp duration');
-            compLength(2, 1);
+            compLength(2, 0);
             app.endUndoGroup();
         break;
 
         case 'in/out-i':
             app.beginUndoGroup('Change comp duration');
-            compLength(3, 1);
+            compLength(3, 0);
             app.endUndoGroup();
         break;
 
@@ -67,34 +79,48 @@ if (kButton) {
 }
 
 function buildPanel() {
-    var comp = app.project.activeItem;
-    var layers = comp.selectedLayers;
     var window = new Window("palette", "Comp to Contents", undefined);
     var compInButton = window.add("button",undefined,"Comp In");
     var compOutButton = window.add("button",undefined,"Comp Out");
-    var compInOutButton = window.add("button",undefined,"Comp In & Out")
+    var compInOutButton = window.add("button",undefined,"Comp In & Out");
+    var note = window.add("statictext", undefined, 'Use "Alt" to include locked layers.');
     window.show();
  
     compInButton.onClick = function video() {
+        var keyState = ScriptUI.environment.keyboardState;
         app.beginUndoGroup('Change comp duration');
-        compLength(1, 0);
+        if(keyState.altKey)
+            compLength(1, 0);
+        else
+            compLength(1, 1);
         app.endUndoGroup();
     }
  
     compOutButton.onClick = function() {
+        var keyState = ScriptUI.environment.keyboardState;
         app.beginUndoGroup('Change comp duration');
-        compLength(2, 0);
+        if(keyState.altKey)
+            compLength(2, 0);
+        else
+            compLength(2, 1);
         app.endUndoGroup();
     }
 
     compInOutButton.onClick = function () {
+        var keyState = ScriptUI.environment.keyboardState;
         app.beginUndoGroup('Change comp duration');
-        compLength(3, 0);
+        if(keyState.altKey)
+            compLength(3, 0);
+        else
+            compLength(3, 1);
         app.endUndoGroup();
     }
  }
 
 function compLength(dir, ignore) {
+    var comp = app.project.activeItem;
+    var layers = comp.selectedLayers;
+    var allLayers = comp.layers;
     var all = 0;
     var minIn = comp.duration;
     var maxOut = -10800;
@@ -143,7 +169,7 @@ function compLength(dir, ignore) {
     }
 
     // shift markers
-    moveMarkers();    
+    moveMarkers(comp);    
 
     // gather values for work area shift
     crop=0;
@@ -171,9 +197,11 @@ function compLength(dir, ignore) {
 
     // reset start time
     comp.displayStartTime = ogStartTime;
+
 }
 
-function moveMarkers() {
+// via NT Productions: https://youtu.be/s0itie1k_pw
+function moveMarkers(comp) {
     for(var i = 1; i <= comp.markerProperty.numKeys; i++) {
         marker = new MarkerValue(comp.markerProperty.keyValue(i).comment);
         marker.chapter = comp.markerProperty.keyValue(i).chapter;
