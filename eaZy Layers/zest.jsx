@@ -8,7 +8,7 @@ var allLayers = comp.layers;
 
 app.beginUndoGroup("Add zest");
 
-index=1;
+var index = 1;
 for (var i=1; i <= allLayers.length; i++) {
     if (allLayers[i].name.search("zëst")>0)
         index++;
@@ -30,8 +30,21 @@ zestLayer.label = adjColor;
 
 var zestShape = zestGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
 zestShape.property("Size").setValue([comp.width,comp.height]);
-zestShape.property("Size").expression = "[thisComp.width,thisComp.height]";
-zestLayer.transform.position.expression = "[thisComp.width/2,thisComp.height/2]";
+zestLayer.Effects.addProperty("Checkbox Control");
+zestLayer.effect("Checkbox Control").name = "Full Screen Lock";
+zestLayer.effect("Full Screen Lock").property("Checkbox").setValue(1);
+zestShape.property("Size").expression = 'if (effect("Full Screen Lock")("Checkbox")==1)\
+[thisComp.width,thisComp.height]\
+else\
+value';
+zestLayer.transform.scale.expression = 'if (effect("Full Screen Lock")("Checkbox")==1)\
+[100,100]\
+else\
+value';
+zestLayer.transform.position.expression = 'if (effect("Full Screen Lock")("Checkbox")==1)\
+[thisComp.width/2,thisComp.height/2]\
+else\
+value';
 var zestFill = zestGroup.property("Contents").addProperty("ADBE Vector Graphic - Fill");
 zestFill.property("Color").setValue([0,0,0]);
 
@@ -40,7 +53,6 @@ if(layers.length > 0) {
     var minIn = zestLayer.outPoint;
     var newOut;
     var maxOut = 0;
-    var topIndx = layers.length;
     var newIndx = layers.length;
     zestLayer.moveToEnd();
     
