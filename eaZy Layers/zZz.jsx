@@ -655,7 +655,11 @@ function buildPanel() {
     window.show();
 
     zilchButton.onClick = function() {
-        zilch();
+        var keyState = ScriptUI.environment.keyboardState;
+        if (keyState.shiftKey)
+            onePer();
+        else
+            zilch();
     }
     
     zestButton.onClick = function() {
