@@ -9,15 +9,12 @@ None of the above achieved everything I wanted in one package, so I took it as a
 
 Distinct features:
 - The duration of any created layer matches the combined length of the currently selected layers
+- Hold Shift to create one zilch (Null) per selected layer
+- Hold Alt with one layer selected to transfer all transform keyframes to the zilch layer
+- Shift and Alt can be combined to transfer transform controls of each layer to their own zilch layer
 - zest (Adjustment Layer) always fills comp and stays centered (effectively locked without actually being locked in timeline)
 - Option for zone (Solid) to always fill comp
 - zone width, height, square, roundness, and color controls
-
-WIP:
-- Option to create one zilch (Null) per selected layer
-- Option to transfer all transform keyframes from layer to zilch layer
-
-zZz.jsx is the master file that will work with KBar or open a UI panel. The others are headless versions.
 
 KBar arguments for zZz.jsx:
 - zilch = New Null Layer
