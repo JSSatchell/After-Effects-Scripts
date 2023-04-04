@@ -49,10 +49,15 @@ if (kButton) {
     var keyState = ScriptUI.environment.keyboardState;
     switch(kButton.argument) {
         case 'zilch':
-            if (keyState.shiftKey)
-                onePer();
-            else
-                zilch();
+            app.beginUndoGroup("Add zilch");
+            if (keyState.shiftKey && layers.length>0) {
+                for (var n = 0; n < layers.length; n++) {
+                    var thisLayer = [layers[n]];
+                    zilch(thisLayer);
+                }
+            } else
+                zilch(layers);
+            app.endUndoGroup();
         break;
 
         case 'zest':
@@ -76,15 +81,53 @@ if (kButton) {
     buildPanel();
 }
 
-function zilch() {
-    var comp = app.project.activeItem;
-    var layers = comp.selectedLayers;
+function zilch(layers) {
     var keyState = ScriptUI.environment.keyboardState;
+    // Set name
+    var allLayers = comp.layers;
+    var index =1;
+    for (var i=1; i <= allLayers.length; i++) {
+        if (allLayers[i].name.search("z lch")>0)
+            index++;
+    }
+    var zilchLayer = comp.layers.addShape();
+    zilchLayer.name = "» z lch " + index + " «";
+    //zilchLayer.name = "+ z lch " + index + " +"; // if the symbols above cause problems
 
-    app.beginUndoGroup("Add zilch")
+    // Create zilch layer and set attributes
+    zilchLayer.guideLayer = 1;
+    if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
+        var nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT);
+    } else if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
+        nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT);
+    } else {
+        nullColor = 9;
+    }
+    zilchLayer.label = nullColor;
 
-    var newZilchLayer = newZilch();
-    var zilchLayer = newZilchLayer[0];
+    // Apply zilch effect
+    applyPseudoEffect(zlchExpansion, zilchLayer.property("ADBE Effect Parade"));
+    zilchLayer.effect("").name = "z lch";
+
+    // Create shape & apply transform expressions
+    var zilchGroup = zilchLayer.property("Contents").addProperty("ADBE Vector Group");
+    zilchGroup.name = "z lch shape";
+    //zilchGroup.property("Transform").property("Opacity").setValue(50);
+    var zilchShape = zilchGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
+    zilchShape.property("Size").setValue([100,100]);
+    zilchShape.property("Size").expression = 'w = thisLayer.effect("z lch")("Width").value*10;\
+h = thisLayer.effect("z lch")("Height").value*10;\
+s = thisLayer.effect("z lch")("Square").value;\
+nW = value[0]+w\
+nH = value[1]+h\
+if(s==1) { [nH = nW] } else { nH = value[1]+h }\
+[nW,nH]';
+    var zilchStroke = zilchGroup.property("Contents").addProperty("ADBE Vector Graphic - Stroke");
+    var strokeColor = zilchStroke.property("Color").setValue([255,0,200]);
+    zilchStroke.property("Stroke Width").setValue(2);
+    zilchStroke.property("Stroke Width").expression = "// via https://help.battleaxe.co/freebies/buttcapper.html#maintain-stroke-width\
+\
+value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
 
     // Adapt to selected layers
     if(layers.length > 0) {
@@ -206,7 +249,6 @@ function zilch() {
     }
 
     // Add stroke properties to shape (will open property drop downs)
-    var zilchStroke = newZilchLayer[1];
     zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Dash 1").setValue(2);
     zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Gap 1").setValue(2);
     zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Offset").setValue(4);
@@ -214,78 +256,6 @@ function zilch() {
     // Collapse properties
     app.executeCommand(2771);
     app.executeCommand(2771);
-    
-    app.endUndoGroup();
-}
-
-function onePer() {
-    var comp = app.project.activeItem;
-    var layers = comp.selectedLayers;
-    var keyState = ScriptUI.environment.keyboardState;
-
-    app.beginUndoGroup("Add zilch");
-
-    for (var n = 0; n < layers.length; n++) {
-        var newZilchLayer = newZilch();
-        var zilchLayer = newZilchLayer[0];
-            
-        zilchLayer.moveToEnd();
-
-        // Collect in & out point
-        thisIn = layers[n].inPoint;
-        thisOut = layers[n].outPoint;
-        
-        t = comp.time;
-        if (thisIn>thisOut) { // Check for reversed layers
-            var flip = thisOut;
-            thisOut = thisIn;
-            thisIn = flip;
-        }
-        // Set in & out point
-        zilchLayer.inPoint = thisIn;
-        zilchLayer.outPoint = thisOut;
-        zilchLayer.moveBefore(layers[n]);
-
-        // Save & clear parent
-        thisParent = layers[n].parent;
-        layers[n].parent = null;
-
-        // Copy transform values
-        if (layers[n].threeDLayer)
-            zilchLayer.threeDLayer = 1;
-
-        // Set transform values
-        zilchLayer.transform.position.setValue(layers[n].transform.position.valueAtTime(t,1));
-        if(zilchLayer.threeDLayer) {
-            zilchLayer.transform.orientation.setValue(layers[n].transform.orientation.valueAtTime(t,1));
-            zilchLayer.transform.xRotation.setValue(layers[n].transform.xRotation.valueAtTime(t,1));
-            zilchLayer.transform.yRotation.setValue(layers[n].transform.yRotation.valueAtTime(t,1));
-            zilchLayer.transform.zRotation.setValue(layers[n].transform.zRotation.valueAtTime(t,1));
-        }
-
-        // Transfer transform values from layer to zilch layer if Alt key is pressed
-        if (keyState.altKey)
-            transformKeys(layers[n], zilchLayer, t);
-
-        // Set parent
-        layers[n].parent = zilchLayer;
-
-        // Set zilch parent to layer parent
-        if (thisParent != null)
-            zilchLayer.parent = thisParent;
-
-        // Add stroke properties to shape (will open property drop downs)
-        var zilchStroke = newZilchLayer[1];
-        zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Dash 1").setValue(2);
-        zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Gap 1").setValue(2);
-        zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Offset").setValue(4);
-
-        // Collapse properties
-        app.executeCommand(2771);
-        app.executeCommand(2771);
-
-    }
-    app.endUndoGroup();
 }
 
 function zest() {
@@ -468,11 +438,19 @@ function buildPanel() {
     window.show();
 
     zilchButton.onClick = function() {
+        var comp = app.project.activeItem;
+        var layers = comp.selectedLayers;
+        var allLayers = comp.layers;
         var keyState = ScriptUI.environment.keyboardState;
-        if (keyState.shiftKey)
-            onePer();
-        else
-            zilch();
+        app.beginUndoGroup("Add zilch");
+        if (keyState.shiftKey && layers.length>0) {
+            for (var n = 0; n < layers.length; n++) {
+                var thisLayer = [layers[n]];
+                zilch(thisLayer);
+            }
+        } else
+            zilch(layers);
+        app.endUndoGroup();
     }
     
     zestButton.onClick = function() {
@@ -505,7 +483,6 @@ function arrayAverage(arr){
     }
     return result;
 }
-
 
 // applyPseudoEffect() via NT Production: https://youtu.be/FOazhcjKFYU
 // and RenderTom: https://bitbucket.org/rendertom/_snippets_/src/c52a28cb7bff72f1ca8a6f4bf3824dc62a342f8a/After%20Effects/Apply%20Pseudo%20Effect%20as%20Animation%20Preset.jsx
@@ -729,53 +706,4 @@ function transformKeys(thisLayer, newLayer, t){
             removeKeyframes(thisLayer.transform.zRotation);
         thisLayer.transform.zRotation.setValue(ogZr);
     }
-}
-
-function newZilch(){
-    // Set name
-    var allLayers = comp.layers;
-    var index =1;
-    for (var i=1; i <= allLayers.length; i++) {
-        if (allLayers[i].name.search("z lch")>0)
-            index++;
-    }
-    var zilchLayer = comp.layers.addShape();
-    zilchLayer.name = "» z lch " + index + " «";
-    //zilchLayer.name = "+ z lch " + index + " +"; // if the symbols above cause problems
-
-    // Create zilch layer and set attributes
-    zilchLayer.guideLayer = 1;
-    if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
-        var nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT);
-    } else if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
-        nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT);
-    } else {
-        nullColor = 9;
-    }
-    zilchLayer.label = nullColor;
-
-    // Apply zilch effect
-    applyPseudoEffect(zlchExpansion, zilchLayer.property("ADBE Effect Parade"));
-    zilchLayer.effect("").name = "z lch";
-
-    // Create shape & apply transform expressions
-    var zilchGroup = zilchLayer.property("Contents").addProperty("ADBE Vector Group");
-    zilchGroup.name = "z lch shape";
-    //zilchGroup.property("Transform").property("Opacity").setValue(50);
-    var zilchShape = zilchGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
-    zilchShape.property("Size").setValue([100,100]);
-    zilchShape.property("Size").expression = 'w = thisLayer.effect("z lch")("Width").value*10;\
-h = thisLayer.effect("z lch")("Height").value*10;\
-s = thisLayer.effect("z lch")("Square").value;\
-nW = value[0]+w\
-nH = value[1]+h\
-if(s==1) { [nH = nW] } else { nH = value[1]+h }\
-[nW,nH]';
-    var zilchStroke = zilchGroup.property("Contents").addProperty("ADBE Vector Graphic - Stroke");
-    var strokeColor = zilchStroke.property("Color").setValue([255,0,200]);
-    zilchStroke.property("Stroke Width").setValue(2);
-    zilchStroke.property("Stroke Width").expression = "// via https://help.battleaxe.co/freebies/buttcapper.html#maintain-stroke-width\
-\
-value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
-    return [zilchLayer, zilchStroke];
 }
