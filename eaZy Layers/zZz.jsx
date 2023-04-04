@@ -12,13 +12,12 @@ None of the above achieved everything I wanted in one package, so I took it as a
 
 Distinct features:
 - The duration of any created layer matches the combined length of the currently selected layers
+- Hold Shift to create one zilch (Null) per selected layer
+- Hold Alt with one layer selected to transfer all transform keyframes to the zilch layer
+- Shift and Alt can be combined to transfer transform controls of each layer to their own zilch layer
 - zest (Adjustment Layer) always fills comp and stays centered (effectively locked without actually being locked in timeline)
 - Option for zone (Solid) to always fill comp
 - zone width, height, square, roundness, and color controls
-
-WIP:
-- Option to create one zilch (Null) per selected layer
-- Option to transfer all transform keyframes from layer to zilch layer
 
 KBar arguments for zZz.jsx:
 - zilch = New Null Layer
@@ -47,9 +46,13 @@ if (kButton) {
     var comp = app.project.activeItem;
     var layers = comp.selectedLayers;
     var allLayers = comp.layers;
+    var keyState = ScriptUI.environment.keyboardState;
     switch(kButton.argument) {
         case 'zilch':
-            zilch();
+            if (keyState.shiftKey)
+                onePer();
+            else
+                zilch();
         break;
 
         case 'zest':
@@ -77,10 +80,13 @@ function zilch() {
     var comp = app.project.activeItem;
     var layers = comp.selectedLayers;
     var allLayers = comp.layers;
-    index=1;
+    var keyState = ScriptUI.environment.keyboardState;
+    //var transforms = ['position', 'scale', 'rotation', 'orientation', 'xRotation', 'yRotation', 'zRotation'];
 
     app.beginUndoGroup("Add zilch")
 
+    // Set name
+    var index =1;
     for (var i=1; i <= allLayers.length; i++) {
         if (allLayers[i].name.search("z lch")>0)
             index++;
@@ -88,6 +94,8 @@ function zilch() {
     var zilchLayer = comp.layers.addShape();
     zilchLayer.name = "» z lch " + index + " «";
     //zilchLayer.name = "+ z lch " + index + " +"; // if the symbols above cause problems
+
+    // Create zilch layer and set attributes
     zilchLayer.guideLayer = 1;
     if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
         var nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT);
@@ -98,9 +106,11 @@ function zilch() {
     }
     zilchLayer.label = nullColor;
 
+    // Apply zilch effect
     applyPseudoEffect(zlchExpansion, zilchLayer.property("ADBE Effect Parade"));
     zilchLayer.effect("").name = "z lch";
 
+    // Create shape & apply transform expressions
     var zilchGroup = zilchLayer.property("Contents").addProperty("ADBE Vector Group");
     zilchGroup.name = "z lch shape";
     //zilchGroup.property("Transform").property("Opacity").setValue(50);
@@ -120,6 +130,7 @@ if(s==1) { [nH = nW] } else { nH = value[1]+h }\
 \
 value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
     
+    // Adapt to selected layers
     if(layers.length > 0) {
         var newIn;
         var minIn = zilchLayer.outPoint;
@@ -140,6 +151,7 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
         oldParentSet = 1;
 
         for(var i = 0; i < layers.length; i++){
+            // Collect in & out point
             newIn = layers[i].inPoint;
             newOut = layers[i].outPoint;
             newIndx = layers[i].index;
@@ -155,10 +167,14 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
                 maxOut = newOut;
             if(newIndx < zilchLayer.index)
                 zilchLayer.moveBefore(layers[i]);
+
+            // Check if all layers have same parent
             if(layers[i].parent!=oldParent)
                 oldParentSet=0;
             thisParent = layers[i].parent;
+
             layers[i].parent = null;
+            // Collect transform values
             pos = layers[i].transform.position.valueAtTime(t,1);
             xPosArray.push(pos[0]);
             yPosArray.push(pos[1]);
@@ -180,7 +196,8 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
                 oYArray.push(0);
                 oZArray.push(0);
             }
-            
+
+            // Reset parent if included with selected layers
             if(thisParent != null) {
                 for(var g = 0; g < layers.length; g++){
                     if(thisParent.name == layers[g].name)
@@ -190,9 +207,11 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
             
         }
     
+        // Set in & out point
         zilchLayer.inPoint = minIn;
         zilchLayer.outPoint = maxOut;
     
+        // Collect average transform values
         avgX = arrayAverage(xPosArray);
         avgY = arrayAverage(yPosArray);
         avgZ = arrayAverage(zPosArray);
@@ -203,6 +222,7 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
         rYAvg = arrayAverage(rYArray);
         rZAvg = arrayAverage(rZArray);
     
+        // Set transform values
         zilchLayer.transform.position.setValue([avgX,avgY,avgZ]);
         if(zilchLayer.threeDLayer) {
             zilchLayer.transform.orientation.setValue([oXAvg,oYAvg,oZAvg]);
@@ -211,15 +231,74 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
             zilchLayer.transform.zRotation.setValue(rZAvg);
         }
 
+        // Transfer transform values from single selected layer to zilch layer if Alt key is pressed
+        if (layers.length == 1 && keyState.altKey) {
+            ogScale = layers[0].transform.scale.valueAtTime(t,1);
+            var scaleKeys = collectKeyframes(layers[0].transform.scale);
+            var scaleMove = transferKeyframes(zilchLayer.transform.scale, scaleKeys);
+            if(scaleMove == true)
+                removeKeyframes(layers[0].transform.scale);
+            layers[0].transform.scale.setValue(ogScale);
+
+            ogPos = layers[0].transform.position.valueAtTime(t,1);
+            var posKeys = collectKeyframes(layers[0].transform.position);
+            var posMove = transferKeyframes(zilchLayer.transform.position, posKeys);
+            if(posMove == true)
+                removeKeyframes(layers[0].transform.position);
+            layers[0].transform.position.setValue(ogPos);
+            
+            if (!layers[0].threeDLayer){
+                ogRot = layers[0].transform.rotation.valueAtTime(t,1);
+                var rotKeys = collectKeyframes(layers[0].transform.rotation);
+                var rotMove = transferKeyframes(zilchLayer.transform.rotation, rotKeys);
+                if(rotMove == true)
+                    removeKeyframes(layers[0].transform.rotation);
+                layers[0].transform.rotation.setValue(ogRot);
+            } else {
+                ogOr = layers[0].transform.orientation.valueAtTime(t,1);
+                var orKeys = collectKeyframes(layers[0].transform.orientation);
+                var orMove = transferKeyframes(zilchLayer.transform.orientation, orKeys);
+                if(orMove == true)
+                    removeKeyframes(layers[0].transform.orientation);
+                layers[0].transform.orientation.setValue(ogOr);
+
+                ogXr = layers[0].transform.xRotation.valueAtTime(t,1);
+                var xRKeys = collectKeyframes(layers[0].transform.xRotation);
+                var xRMove = transferKeyframes(zilchLayer.transform.xRotation, xRKeys);
+                if(xRMove == true)
+                    removeKeyframes(layers[0].transform.xRotation);
+                layers[0].transform.xRotation.setValue(ogXr);
+
+                ogYr = layers[0].transform.yRotation.valueAtTime(t,1);
+                var yRKeys = collectKeyframes(layers[0].transform.yRotation);
+                var yRMove = transferKeyframes(zilchLayer.transform.yRotation, yRKeys);
+                if(yRMove == true)
+                    removeKeyframes(layers[0].transform.yRotation);
+                layers[0].transform.yRotation.setValue(ogYr);
+
+                ogZr = layers[0].transform.zRotation.valueAtTime(t,1);
+                var zRKeys = collectKeyframes(layers[0].transform.zRotation);
+                var zRMove = transferKeyframes(zilchLayer.transform.zRotation, zRKeys);
+                if(zRMove == true)
+                    removeKeyframes(layers[0].transform.zRotation);
+                layers[0].transform.zRotation.setValue(ogZr);
+            }
+        }
+
+        // Set parent
         for(var i = 0; i < layers.length; i++){
+            // Parent layer to zilch unless parent layer is also selected
             if (layers[i].parent == null)
                 layers[i].parent = zilchLayer;
         }
+
+        // Set zilch parent to layer parent if all have same parent
         if (oldParentSet == 1) {
             zilchLayer.parent = oldParent;
         }
     }
 
+    // Add stroke properties to shape (will open property drop downs)
     zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Dash 1").setValue(2);
     zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Gap 1").setValue(2);
     zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Offset").setValue(4);
@@ -231,14 +310,179 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
     app.endUndoGroup();
 }
 
+function onePer() {
+    var comp = app.project.activeItem;
+    var layers = comp.selectedLayers;
+    var allLayers = comp.layers;
+    var keyState = ScriptUI.environment.keyboardState;
+    var transforms = ['position', 'scale', 'rotation', 'orientation', 'xRotation', 'yRotation', 'zRotation'];
+
+    app.beginUndoGroup("Add zilch")
+
+    for (var n = 0; n < layers.length; n++) {
+        // Set name
+        var index =1;
+        for (var i=1; i <= allLayers.length; i++) {
+            if (allLayers[i].name.search("z lch")>0)
+                index++;
+        }
+        var zilchLayer = comp.layers.addShape();
+        zilchLayer.name = "» z lch " + index + " «";
+        //zilchLayer.name = "+ z lch " + index + " +"; // if the symbols above cause problems
+
+        // Create zilch layer and set attributes
+        zilchLayer.guideLayer = 1;
+        if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
+            var nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT);
+        } else if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
+            nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT);
+        } else {
+            nullColor = 9;
+        }
+        zilchLayer.label = nullColor;
+
+        // Apply zilch effect
+        applyPseudoEffect(zlchExpansion, zilchLayer.property("ADBE Effect Parade"));
+        zilchLayer.effect("").name = "z lch";
+
+        // Create shape & apply transform expressions
+        var zilchGroup = zilchLayer.property("Contents").addProperty("ADBE Vector Group");
+        zilchGroup.name = "z lch shape";
+        //zilchGroup.property("Transform").property("Opacity").setValue(50);
+        var zilchShape = zilchGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
+        zilchShape.property("Size").setValue([100,100]);
+        zilchShape.property("Size").expression = 'w = thisLayer.effect("z lch")("Width").value*10;\
+h = thisLayer.effect("z lch")("Height").value*10;\
+s = thisLayer.effect("z lch")("Square").value;\
+nW = value[0]+w\
+nH = value[1]+h\
+if(s==1) { [nH = nW] } else { nH = value[1]+h }\
+[nW,nH]';
+        var zilchStroke = zilchGroup.property("Contents").addProperty("ADBE Vector Graphic - Stroke");
+        var strokeColor = zilchStroke.property("Color").setValue([255,0,200]);
+        zilchStroke.property("Stroke Width").setValue(2);
+        zilchStroke.property("Stroke Width").expression = "// via https://help.battleaxe.co/freebies/buttcapper.html#maintain-stroke-width\
+\
+value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
+        
+
+         zilchLayer.moveToEnd();
+        // Collect in & out point
+        thisIn = layers[n].inPoint;
+        thisOut = layers[n].outPoint;
+        
+        t = comp.time;
+        if (thisIn>thisOut) { // Check for reversed layers
+            var flip = thisOut;
+            thisOut = thisIn;
+            thisIn = flip;
+        }
+        // Set in & out point
+        zilchLayer.inPoint = thisIn;
+        zilchLayer.outPoint = thisOut;
+        zilchLayer.moveBefore(layers[n]);
+
+        // Save & clear parent
+        thisParent = layers[n].parent;
+        layers[n].parent = null;
+
+        // Copy transform values
+        if (layers[n].threeDLayer)
+            zilchLayer.threeDLayer = 1;
+
+        // Set transform values
+        zilchLayer.transform.position.setValue(layers[n].transform.position.valueAtTime(t,1));
+        if(zilchLayer.threeDLayer) {
+            zilchLayer.transform.orientation.setValue(layers[n].transform.orientation.valueAtTime(t,1));
+            zilchLayer.transform.xRotation.setValue(layers[n].transform.xRotation.valueAtTime(t,1));
+            zilchLayer.transform.yRotation.setValue(layers[n].transform.yRotation.valueAtTime(t,1));
+            zilchLayer.transform.zRotation.setValue(layers[n].transform.zRotation.valueAtTime(t,1));
+        }
+
+        // Transfer transform values from layer to zilch layer if Alt key is pressed
+        if (keyState.altKey) {
+            ogScale = layers[n].transform.scale.valueAtTime(t,1);
+            var scaleKeys = collectKeyframes(layers[n].transform.scale);
+            var scaleMove = transferKeyframes(zilchLayer.transform.scale, scaleKeys);
+            if(scaleMove == true)
+                removeKeyframes(layers[n].transform.scale);
+            layers[n].transform.scale.setValue(ogScale);
+
+            ogPos = layers[n].transform.position.valueAtTime(t,1);
+            var posKeys = collectKeyframes(layers[n].transform.position);
+            var posMove = transferKeyframes(zilchLayer.transform.position, posKeys);
+            if(posMove == true)
+                removeKeyframes(layers[n].transform.position);
+            layers[n].transform.position.setValue(ogPos);
+            
+            if (!layers[n].threeDLayer){
+                ogRot = layers[n].transform.rotation.valueAtTime(t,1);
+                var rotKeys = collectKeyframes(layers[n].transform.rotation);
+                var rotMove = transferKeyframes(zilchLayer.transform.rotation, rotKeys);
+                if(rotMove == true)
+                    removeKeyframes(layers[n].transform.rotation);
+                layers[n].transform.rotation.setValue(ogRot);
+            } else {
+                ogOr = layers[n].transform.orientation.valueAtTime(t,1);
+                var orKeys = collectKeyframes(layers[n].transform.orientation);
+                var orMove = transferKeyframes(zilchLayer.transform.orientation, orKeys);
+                if(orMove == true)
+                    removeKeyframes(layers[n].transform.orientation);
+                layers[n].transform.orientation.setValue(ogOr);
+
+                ogXr = layers[n].transform.xRotation.valueAtTime(t,1);
+                var xRKeys = collectKeyframes(layers[n].transform.xRotation);
+                var xRMove = transferKeyframes(zilchLayer.transform.xRotation, xRKeys);
+                if(xRMove == true)
+                    removeKeyframes(layers[n].transform.xRotation);
+                layers[n].transform.xRotation.setValue(ogXr);
+
+                ogYr = layers[n].transform.yRotation.valueAtTime(t,1);
+                var yRKeys = collectKeyframes(layers[n].transform.yRotation);
+                var yRMove = transferKeyframes(zilchLayer.transform.yRotation, yRKeys);
+                if(yRMove == true)
+                    removeKeyframes(layers[n].transform.yRotation);
+                layers[n].transform.yRotation.setValue(ogYr);
+
+                ogZr = layers[n].transform.zRotation.valueAtTime(t,1);
+                var zRKeys = collectKeyframes(layers[n].transform.zRotation);
+                var zRMove = transferKeyframes(zilchLayer.transform.zRotation, zRKeys);
+                if(zRMove == true)
+                    removeKeyframes(layers[n].transform.zRotation);
+                layers[n].transform.zRotation.setValue(ogZr);
+            }
+        }
+
+        // Set parent
+        layers[n].parent = zilchLayer;
+
+        // Set zilch parent to layer parent if all have same parent
+        if (thisParent != null) {
+            zilchLayer.parent = thisParent;
+        }
+            
+
+        // Add stroke properties to shape (will open property drop downs)
+        zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Dash 1").setValue(2);
+        zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Gap 1").setValue(2);
+        zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Offset").setValue(4);
+
+        // Collapse properties
+        app.executeCommand(2771);
+        app.executeCommand(2771);
+    }
+
+    app.endUndoGroup();
+}
+
 function zest() {
     var comp = app.project.activeItem;
     var layers = comp.selectedLayers;
     var allLayers = comp.layers;
-    index=1;
     
     app.beginUndoGroup("Add zest");
 
+    var index = 1;
     for (var i=1; i <= allLayers.length; i++) {
         if (allLayers[i].name.search("zëst")>0)
             index++;
@@ -260,8 +504,21 @@ function zest() {
     
     var zestShape = zestGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
     zestShape.property("Size").setValue([comp.width,comp.height]);
-    zestShape.property("Size").expression = "[thisComp.width,thisComp.height]";
-    zestLayer.transform.position.expression = "[thisComp.width/2,thisComp.height/2]";
+    zestLayer.Effects.addProperty("Checkbox Control");
+    zestLayer.effect("Checkbox Control").name = "Full Screen Lock";
+    zestLayer.effect("Full Screen Lock").property("Checkbox").setValue(1);
+    zestShape.property("Size").expression = 'if (effect("Full Screen Lock")("Checkbox")==1)\
+	[thisComp.width,thisComp.height]\
+else\
+	value';
+    zestLayer.transform.scale.expression = 'if (effect("Full Screen Lock")("Checkbox")==1)\
+	[100,100]\
+else\
+	value';
+    zestLayer.transform.position.expression = 'if (effect("Full Screen Lock")("Checkbox")==1)\
+	[thisComp.width/2,thisComp.height/2]\
+else\
+	value';
     var zestFill = zestGroup.property("Contents").addProperty("ADBE Vector Graphic - Fill");
     zestFill.property("Color").setValue([0,0,0]);
     
@@ -303,10 +560,10 @@ function zone() {
     var comp = app.project.activeItem;
     var layers = comp.selectedLayers;
     var allLayers = comp.layers;
-    index=1;
 
     app.beginUndoGroup("Add zone");
 
+    var index = 1;
     for (var i=1; i <= allLayers.length; i++) {
         if (allLayers[i].name.search("zøne")>0)
             index++;
@@ -433,7 +690,7 @@ function arrayAverage(arr){
 }
 
 
-// via NT Production: https://youtu.be/FOazhcjKFYU
+// applyPseudoEffect() via NT Production: https://youtu.be/FOazhcjKFYU
 // and RenderTom: https://bitbucket.org/rendertom/_snippets_/src/c52a28cb7bff72f1ca8a6f4bf3824dc62a342f8a/After%20Effects/Apply%20Pseudo%20Effect%20as%20Animation%20Preset.jsx
 function applyPseudoEffect(pseudoEffectData, effectsProp) {
     var pseudoEffect,
@@ -461,4 +718,145 @@ function applyPseudoEffect(pseudoEffectData, effectsProp) {
 
     pseudoEffect = effectsProp.addProperty(pseudoEffectData.matchName);
     return pseudoEffect;
+}
+
+// collectKeyframes(), transferKeyframes(), & removeKeyframes() via David Torno & Fendra FX: https://fendrafx.com/tutorial/after-effects-extendscript-training-ep-15-part-1/
+
+function collectKeyframes(propertyInput){
+	if(propertyInput instanceof Property){
+		var totalKeys, prop, keyIndexList, curKeyIndex, curKeyValue, inIn, outIn, ab, cb, ie, oe, sab, scb, ist, ost, rov, twoDS, threeDS;
+		twoDS = PropertyValueType.TwoD_SPATIAL;
+		threeDS = PropertyValueType.ThreeD_SPATIAL;
+		keyIndexList = new Array();
+		totalKeys = propertyInput.numKeys;
+		
+		//If the property has at least 1 keyframe, proceed
+		if(totalKeys > 0){
+			//Loop through keys
+			for(var i = 1; i <= totalKeys; i++){
+				//Get the current key time...
+				curKeyTime = propertyInput.keyTime(i);
+				//...it's index...
+				curKeyIndex = i;
+				//...and it's value
+				curKeyValue = propertyInput.keyValue(i);
+				
+				//Get the key in and out interpolation types
+				inIn = propertyInput.keyInInterpolationType(curKeyIndex);
+				outIn = propertyInput.keyOutInterpolationType(curKeyIndex);
+				
+				//Get the key Temporal Continuous and Auto Bezier if the key type is BEZIER
+				if(inIn == KeyframeInterpolationType.BEZIER && outIn == KeyframeInterpolationType.BEZIER){
+					ab = propertyInput.keyTemporalAutoBezier(curKeyIndex);
+					cb = propertyInput.keyTemporalContinuous(curKeyIndex);
+				}
+			
+				//Get it's Temporal ease if it is not a HOLD key type
+				if(inIn != KeyframeInterpolationType.HOLD || outIn != KeyframeInterpolationType.HOLD){
+					ie = propertyInput.keyInTemporalEase(curKeyIndex);
+					oe = propertyInput.keyOutTemporalEase(curKeyIndex);
+				}
+			
+				//Get the key Spatial Continuous, Auto Bezier, Tangents, and Roving values if the key type is 2D or 3D SPATIAL
+				if(propertyInput.propertyValueType == twoDS || propertyInput.propertyValueType == threeDS){
+					sab = propertyInput.keySpatialAutoBezier(curKeyIndex);
+					scb = propertyInput.keySpatialContinuous(curKeyIndex);
+					ist = propertyInput.keyInSpatialTangent(curKeyIndex);
+					ost = propertyInput.keyOutSpatialTangent(curKeyIndex);
+					rov = propertyInput.keyRoving(curKeyIndex);
+				}
+				
+				//Assemble that collected key data into and object array for retrieval later
+				keyIndexList[keyIndexList.length] = {
+					'curKeyTime':curKeyTime, 
+					'curKeyIndex':curKeyIndex, 
+					'curKeyValue':curKeyValue, 
+					'inIn':inIn, 
+					'outIn':outIn, 
+					'ab':ab, 
+					'cb':cb, 
+					'ie':ie, 
+					'oe':oe, 
+					'sab':sab, 
+					'scb':scb, 
+					'ist':ist, 
+					'ost':ost, 
+					'rov':rov
+					}
+			}
+			//Return the object array as a result
+			return keyIndexList;
+		}else{
+			//If there were no keyframes, then just return null as a result
+			return null;
+		}
+	}
+}
+
+function transferKeyframes(propertyInput, keysAry){
+	if(propertyInput instanceof Property && keysAry instanceof Array){
+		if(propertyInput.numKeys == 0){
+			//Declare variables
+			var keysAryLength, newKeyTime, addNewKey, newKeyIndex;
+			//Get length of keyframe array
+			keysAryLength = keysAry.length;
+			//Start loop to create keys
+			for(var k = 0; k < keysAryLength; k++){
+				//Add new keyframe
+				addNewKey = propertyInput.addKey(keysAry[k].curKeyTime);
+				//Assign current key to variable
+				newKeyIndex = addNewKey;
+				//Set the base property value of the key
+				propertyInput.setValueAtKey(newKeyIndex, keysAry[k].curKeyValue);
+				
+				//Set it's Temporal ease if it is not a HOLD key type
+				if(keysAry[k].outIn != KeyframeInterpolationType.HOLD){
+					propertyInput.setTemporalEaseAtKey(newKeyIndex, keysAry[k].ie, keysAry[k].oe);
+				}
+				//Set the key type of interpolation
+				propertyInput.setInterpolationTypeAtKey(newKeyIndex, keysAry[k].inIn, keysAry[k].outIn);
+				
+				//Set the key Temporal Continuous and Auto Bezier if the key type is BEZIER
+				if((keysAry[k].inIn == KeyframeInterpolationType.BEZIER) && (keysAry[k].outIn == KeyframeInterpolationType.BEZIER)){
+					propertyInput.setTemporalContinuousAtKey(newKeyIndex, keysAry[k].cb);
+					propertyInput.setTemporalAutoBezierAtKey(newKeyIndex, keysAry[k].ab);
+				}
+			
+				//Set the key Spatial Continuous, Auto Bezier, and Tangents if the key type is 2D or 3D SPATIAL
+				if((propertyInput.propertyValueType == PropertyValueType.TwoD_SPATIAL) || (propertyInput.propertyValueType == PropertyValueType.ThreeD_SPATIAL)){
+					propertyInput.setSpatialContinuousAtKey(newKeyIndex, keysAry[k].scb);
+					propertyInput.setSpatialAutoBezierAtKey(newKeyIndex, keysAry[k].sab);
+					propertyInput.setSpatialTangentsAtKey(newKeyIndex, keysAry[k].ist, keysAry[k].ost);
+				}
+			}
+	
+			//We have to go back through and do roving keyframes after we have already created the inital keyframe. This is because the first and last keyframe can not be a roving key, so as we add new keyframes, we are technically on the last key each time in the loop and the code will ignore setting it as roving.
+			if((propertyInput.propertyValueType == PropertyValueType.TwoD_SPATIAL) || (propertyInput.propertyValueType == PropertyValueType.ThreeD_SPATIAL)){
+				for(var r = 0; r < keysAryLength; r++){
+					propertyInput.setRovingAtKey((r+1), keysAry[r].rov);
+				}
+			}
+			return true;
+		}else{
+			//OPTIONAL: If there are already keyframes on the destination property, alert the user to a choice. Just uncomment to use this
+			/*	<----DELETE THIS LINE---->
+			var check = confirm("OOPS!\rLooks like you already have keyframes on the property you are copying to!\r\rDelete them by clicking YES or stop the script now by clicking NO.", true);
+			if(check == true){
+				removeKeyframes(propertyInput);
+				transferKeyframes(propertyInput, keysAry);
+				return true;
+			}else{
+				return false;
+			}
+			<----AND DELETE THIS LINE---->	*/
+		}
+	}
+}
+
+function removeKeyframes(propertyInput){
+	if(propertyInput instanceof Property){
+		while(propertyInput.numKeys > 0){
+			propertyInput.removeKey(1);
+		}
+	}
 }
