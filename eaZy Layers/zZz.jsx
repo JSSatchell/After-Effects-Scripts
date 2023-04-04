@@ -79,57 +79,13 @@ if (kButton) {
 function zilch() {
     var comp = app.project.activeItem;
     var layers = comp.selectedLayers;
-    var allLayers = comp.layers;
     var keyState = ScriptUI.environment.keyboardState;
-    //var transforms = ['position', 'scale', 'rotation', 'orientation', 'xRotation', 'yRotation', 'zRotation'];
 
     app.beginUndoGroup("Add zilch")
 
-    // Set name
-    var index =1;
-    for (var i=1; i <= allLayers.length; i++) {
-        if (allLayers[i].name.search("z lch")>0)
-            index++;
-    }
-    var zilchLayer = comp.layers.addShape();
-    zilchLayer.name = "» z lch " + index + " «";
-    //zilchLayer.name = "+ z lch " + index + " +"; // if the symbols above cause problems
+    var newZilchLayer = newZilch();
+    var zilchLayer = newZilchLayer[0];
 
-    // Create zilch layer and set attributes
-    zilchLayer.guideLayer = 1;
-    if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
-        var nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT);
-    } else if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
-        nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT);
-    } else {
-        nullColor = 9;
-    }
-    zilchLayer.label = nullColor;
-
-    // Apply zilch effect
-    applyPseudoEffect(zlchExpansion, zilchLayer.property("ADBE Effect Parade"));
-    zilchLayer.effect("").name = "z lch";
-
-    // Create shape & apply transform expressions
-    var zilchGroup = zilchLayer.property("Contents").addProperty("ADBE Vector Group");
-    zilchGroup.name = "z lch shape";
-    //zilchGroup.property("Transform").property("Opacity").setValue(50);
-    var zilchShape = zilchGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
-    zilchShape.property("Size").setValue([100,100]);
-    zilchShape.property("Size").expression = 'w = thisLayer.effect("z lch")("Width").value*10;\
-h = thisLayer.effect("z lch")("Height").value*10;\
-s = thisLayer.effect("z lch")("Square").value;\
-nW = value[0]+w\
-nH = value[1]+h\
-if(s==1) { [nH = nW] } else { nH = value[1]+h }\
-[nW,nH]';
-    var zilchStroke = zilchGroup.property("Contents").addProperty("ADBE Vector Graphic - Stroke");
-    var strokeColor = zilchStroke.property("Color").setValue([255,0,200]);
-    zilchStroke.property("Stroke Width").setValue(2);
-    zilchStroke.property("Stroke Width").expression = "// via https://help.battleaxe.co/freebies/buttcapper.html#maintain-stroke-width\
-\
-value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
-    
     // Adapt to selected layers
     if(layers.length > 0) {
         var newIn;
@@ -146,9 +102,9 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
         oXArray = [];
         oYArray = [];
         oZArray = [];
-        zilchLayer.moveToEnd();
         oldParent = layers[0].parent;
         oldParentSet = 1;
+        zilchLayer.moveToEnd();
 
         for(var i = 0; i < layers.length; i++){
             // Collect in & out point
@@ -173,7 +129,9 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
                 oldParentSet=0;
             thisParent = layers[i].parent;
 
+            // Clear parent
             layers[i].parent = null;
+
             // Collect transform values
             pos = layers[i].transform.position.valueAtTime(t,1);
             xPosArray.push(pos[0]);
@@ -232,62 +190,11 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
         }
 
         // Transfer transform values from single selected layer to zilch layer if Alt key is pressed
-        if (layers.length == 1 && keyState.altKey) {
-            ogScale = layers[0].transform.scale.valueAtTime(t,1);
-            var scaleKeys = collectKeyframes(layers[0].transform.scale);
-            var scaleMove = transferKeyframes(zilchLayer.transform.scale, scaleKeys);
-            if(scaleMove == true)
-                removeKeyframes(layers[0].transform.scale);
-            layers[0].transform.scale.setValue(ogScale);
+        if (layers.length == 1 && keyState.altKey)
+            transformKeys(layers[0], zilchLayer, t);
 
-            ogPos = layers[0].transform.position.valueAtTime(t,1);
-            var posKeys = collectKeyframes(layers[0].transform.position);
-            var posMove = transferKeyframes(zilchLayer.transform.position, posKeys);
-            if(posMove == true)
-                removeKeyframes(layers[0].transform.position);
-            layers[0].transform.position.setValue(ogPos);
-            
-            if (!layers[0].threeDLayer){
-                ogRot = layers[0].transform.rotation.valueAtTime(t,1);
-                var rotKeys = collectKeyframes(layers[0].transform.rotation);
-                var rotMove = transferKeyframes(zilchLayer.transform.rotation, rotKeys);
-                if(rotMove == true)
-                    removeKeyframes(layers[0].transform.rotation);
-                layers[0].transform.rotation.setValue(ogRot);
-            } else {
-                ogOr = layers[0].transform.orientation.valueAtTime(t,1);
-                var orKeys = collectKeyframes(layers[0].transform.orientation);
-                var orMove = transferKeyframes(zilchLayer.transform.orientation, orKeys);
-                if(orMove == true)
-                    removeKeyframes(layers[0].transform.orientation);
-                layers[0].transform.orientation.setValue(ogOr);
-
-                ogXr = layers[0].transform.xRotation.valueAtTime(t,1);
-                var xRKeys = collectKeyframes(layers[0].transform.xRotation);
-                var xRMove = transferKeyframes(zilchLayer.transform.xRotation, xRKeys);
-                if(xRMove == true)
-                    removeKeyframes(layers[0].transform.xRotation);
-                layers[0].transform.xRotation.setValue(ogXr);
-
-                ogYr = layers[0].transform.yRotation.valueAtTime(t,1);
-                var yRKeys = collectKeyframes(layers[0].transform.yRotation);
-                var yRMove = transferKeyframes(zilchLayer.transform.yRotation, yRKeys);
-                if(yRMove == true)
-                    removeKeyframes(layers[0].transform.yRotation);
-                layers[0].transform.yRotation.setValue(ogYr);
-
-                ogZr = layers[0].transform.zRotation.valueAtTime(t,1);
-                var zRKeys = collectKeyframes(layers[0].transform.zRotation);
-                var zRMove = transferKeyframes(zilchLayer.transform.zRotation, zRKeys);
-                if(zRMove == true)
-                    removeKeyframes(layers[0].transform.zRotation);
-                layers[0].transform.zRotation.setValue(ogZr);
-            }
-        }
-
-        // Set parent
+        // Parent layer to zilch unless parent layer is also selected
         for(var i = 0; i < layers.length; i++){
-            // Parent layer to zilch unless parent layer is also selected
             if (layers[i].parent == null)
                 layers[i].parent = zilchLayer;
         }
@@ -299,6 +206,7 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
     }
 
     // Add stroke properties to shape (will open property drop downs)
+    var zilchStroke = newZilchLayer[1];
     zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Dash 1").setValue(2);
     zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Gap 1").setValue(2);
     zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Offset").setValue(4);
@@ -313,60 +221,16 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
 function onePer() {
     var comp = app.project.activeItem;
     var layers = comp.selectedLayers;
-    var allLayers = comp.layers;
     var keyState = ScriptUI.environment.keyboardState;
-    var transforms = ['position', 'scale', 'rotation', 'orientation', 'xRotation', 'yRotation', 'zRotation'];
 
-    app.beginUndoGroup("Add zilch")
+    app.beginUndoGroup("Add zilch");
 
     for (var n = 0; n < layers.length; n++) {
-        // Set name
-        var index =1;
-        for (var i=1; i <= allLayers.length; i++) {
-            if (allLayers[i].name.search("z lch")>0)
-                index++;
-        }
-        var zilchLayer = comp.layers.addShape();
-        zilchLayer.name = "» z lch " + index + " «";
-        //zilchLayer.name = "+ z lch " + index + " +"; // if the symbols above cause problems
+        var newZilchLayer = newZilch();
+        var zilchLayer = newZilchLayer[0];
+            
+        zilchLayer.moveToEnd();
 
-        // Create zilch layer and set attributes
-        zilchLayer.guideLayer = 1;
-        if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
-            var nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT);
-        } else if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
-            nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT);
-        } else {
-            nullColor = 9;
-        }
-        zilchLayer.label = nullColor;
-
-        // Apply zilch effect
-        applyPseudoEffect(zlchExpansion, zilchLayer.property("ADBE Effect Parade"));
-        zilchLayer.effect("").name = "z lch";
-
-        // Create shape & apply transform expressions
-        var zilchGroup = zilchLayer.property("Contents").addProperty("ADBE Vector Group");
-        zilchGroup.name = "z lch shape";
-        //zilchGroup.property("Transform").property("Opacity").setValue(50);
-        var zilchShape = zilchGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
-        zilchShape.property("Size").setValue([100,100]);
-        zilchShape.property("Size").expression = 'w = thisLayer.effect("z lch")("Width").value*10;\
-h = thisLayer.effect("z lch")("Height").value*10;\
-s = thisLayer.effect("z lch")("Square").value;\
-nW = value[0]+w\
-nH = value[1]+h\
-if(s==1) { [nH = nW] } else { nH = value[1]+h }\
-[nW,nH]';
-        var zilchStroke = zilchGroup.property("Contents").addProperty("ADBE Vector Graphic - Stroke");
-        var strokeColor = zilchStroke.property("Color").setValue([255,0,200]);
-        zilchStroke.property("Stroke Width").setValue(2);
-        zilchStroke.property("Stroke Width").expression = "// via https://help.battleaxe.co/freebies/buttcapper.html#maintain-stroke-width\
-\
-value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
-        
-
-         zilchLayer.moveToEnd();
         // Collect in & out point
         thisIn = layers[n].inPoint;
         thisOut = layers[n].outPoint;
@@ -400,69 +264,18 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
         }
 
         // Transfer transform values from layer to zilch layer if Alt key is pressed
-        if (keyState.altKey) {
-            ogScale = layers[n].transform.scale.valueAtTime(t,1);
-            var scaleKeys = collectKeyframes(layers[n].transform.scale);
-            var scaleMove = transferKeyframes(zilchLayer.transform.scale, scaleKeys);
-            if(scaleMove == true)
-                removeKeyframes(layers[n].transform.scale);
-            layers[n].transform.scale.setValue(ogScale);
-
-            ogPos = layers[n].transform.position.valueAtTime(t,1);
-            var posKeys = collectKeyframes(layers[n].transform.position);
-            var posMove = transferKeyframes(zilchLayer.transform.position, posKeys);
-            if(posMove == true)
-                removeKeyframes(layers[n].transform.position);
-            layers[n].transform.position.setValue(ogPos);
-            
-            if (!layers[n].threeDLayer){
-                ogRot = layers[n].transform.rotation.valueAtTime(t,1);
-                var rotKeys = collectKeyframes(layers[n].transform.rotation);
-                var rotMove = transferKeyframes(zilchLayer.transform.rotation, rotKeys);
-                if(rotMove == true)
-                    removeKeyframes(layers[n].transform.rotation);
-                layers[n].transform.rotation.setValue(ogRot);
-            } else {
-                ogOr = layers[n].transform.orientation.valueAtTime(t,1);
-                var orKeys = collectKeyframes(layers[n].transform.orientation);
-                var orMove = transferKeyframes(zilchLayer.transform.orientation, orKeys);
-                if(orMove == true)
-                    removeKeyframes(layers[n].transform.orientation);
-                layers[n].transform.orientation.setValue(ogOr);
-
-                ogXr = layers[n].transform.xRotation.valueAtTime(t,1);
-                var xRKeys = collectKeyframes(layers[n].transform.xRotation);
-                var xRMove = transferKeyframes(zilchLayer.transform.xRotation, xRKeys);
-                if(xRMove == true)
-                    removeKeyframes(layers[n].transform.xRotation);
-                layers[n].transform.xRotation.setValue(ogXr);
-
-                ogYr = layers[n].transform.yRotation.valueAtTime(t,1);
-                var yRKeys = collectKeyframes(layers[n].transform.yRotation);
-                var yRMove = transferKeyframes(zilchLayer.transform.yRotation, yRKeys);
-                if(yRMove == true)
-                    removeKeyframes(layers[n].transform.yRotation);
-                layers[n].transform.yRotation.setValue(ogYr);
-
-                ogZr = layers[n].transform.zRotation.valueAtTime(t,1);
-                var zRKeys = collectKeyframes(layers[n].transform.zRotation);
-                var zRMove = transferKeyframes(zilchLayer.transform.zRotation, zRKeys);
-                if(zRMove == true)
-                    removeKeyframes(layers[n].transform.zRotation);
-                layers[n].transform.zRotation.setValue(ogZr);
-            }
-        }
+        if (keyState.altKey)
+            transformKeys(layers[n], zilchLayer, t);
 
         // Set parent
         layers[n].parent = zilchLayer;
 
-        // Set zilch parent to layer parent if all have same parent
-        if (thisParent != null) {
+        // Set zilch parent to layer parent
+        if (thisParent != null)
             zilchLayer.parent = thisParent;
-        }
-            
 
         // Add stroke properties to shape (will open property drop downs)
+        var zilchStroke = newZilchLayer[1];
         zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Dash 1").setValue(2);
         zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Gap 1").setValue(2);
         zilchStroke.property("Dashes").addProperty("ADBE Vector Stroke Offset").setValue(4);
@@ -470,8 +283,8 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
         // Collapse properties
         app.executeCommand(2771);
         app.executeCommand(2771);
-    }
 
+    }
     app.endUndoGroup();
 }
 
@@ -863,4 +676,106 @@ function removeKeyframes(propertyInput){
 			propertyInput.removeKey(1);
 		}
 	}
+}
+
+function transformKeys(thisLayer, newLayer, t){
+    ogScale = thisLayer.transform.scale.valueAtTime(t,1);
+    var scaleKeys = collectKeyframes(thisLayer.transform.scale);
+    var scaleMove = transferKeyframes(newLayer.transform.scale, scaleKeys);
+    if(scaleMove == true)
+        removeKeyframes(thisLayer.transform.scale);
+    thisLayer.transform.scale.setValue(ogScale);
+
+    ogPos = thisLayer.transform.position.valueAtTime(t,1);
+    var posKeys = collectKeyframes(thisLayer.transform.position);
+    var posMove = transferKeyframes(newLayer.transform.position, posKeys);
+    if(posMove == true)
+        removeKeyframes(thisLayer.transform.position);
+    thisLayer.transform.position.setValue(ogPos);
+    
+    if (!thisLayer.threeDLayer){
+        ogRot = thisLayer.transform.rotation.valueAtTime(t,1);
+        var rotKeys = collectKeyframes(thisLayer.transform.rotation);
+        var rotMove = transferKeyframes(newLayer.transform.rotation, rotKeys);
+        if(rotMove == true)
+            removeKeyframes(thisLayer.transform.rotation);
+        thisLayer.transform.rotation.setValue(ogRot);
+    } else {
+        ogOr = thisLayer.transform.orientation.valueAtTime(t,1);
+        var orKeys = collectKeyframes(thisLayer.transform.orientation);
+        var orMove = transferKeyframes(newLayer.transform.orientation, orKeys);
+        if(orMove == true)
+            removeKeyframes(thisLayer.transform.orientation);
+        thisLayer.transform.orientation.setValue(ogOr);
+
+        ogXr = thisLayer.transform.xRotation.valueAtTime(t,1);
+        var xRKeys = collectKeyframes(thisLayer.transform.xRotation);
+        var xRMove = transferKeyframes(newLayer.transform.xRotation, xRKeys);
+        if(xRMove == true)
+            removeKeyframes(thisLayer.transform.xRotation);
+        thisLayer.transform.xRotation.setValue(ogXr);
+
+        ogYr = thisLayer.transform.yRotation.valueAtTime(t,1);
+        var yRKeys = collectKeyframes(thisLayer.transform.yRotation);
+        var yRMove = transferKeyframes(newLayer.transform.yRotation, yRKeys);
+        if(yRMove == true)
+            removeKeyframes(thisLayer.transform.yRotation);
+        thisLayer.transform.yRotation.setValue(ogYr);
+
+        ogZr = thisLayer.transform.zRotation.valueAtTime(t,1);
+        var zRKeys = collectKeyframes(thisLayer.transform.zRotation);
+        var zRMove = transferKeyframes(newLayer.transform.zRotation, zRKeys);
+        if(zRMove == true)
+            removeKeyframes(thisLayer.transform.zRotation);
+        thisLayer.transform.zRotation.setValue(ogZr);
+    }
+}
+
+function newZilch(){
+    // Set name
+    var allLayers = comp.layers;
+    var index =1;
+    for (var i=1; i <= allLayers.length; i++) {
+        if (allLayers[i].name.search("z lch")>0)
+            index++;
+    }
+    var zilchLayer = comp.layers.addShape();
+    zilchLayer.name = "» z lch " + index + " «";
+    //zilchLayer.name = "+ z lch " + index + " +"; // if the symbols above cause problems
+
+    // Create zilch layer and set attributes
+    zilchLayer.guideLayer = 1;
+    if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
+        var nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT);
+    } else if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
+        nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT);
+    } else {
+        nullColor = 9;
+    }
+    zilchLayer.label = nullColor;
+
+    // Apply zilch effect
+    applyPseudoEffect(zlchExpansion, zilchLayer.property("ADBE Effect Parade"));
+    zilchLayer.effect("").name = "z lch";
+
+    // Create shape & apply transform expressions
+    var zilchGroup = zilchLayer.property("Contents").addProperty("ADBE Vector Group");
+    zilchGroup.name = "z lch shape";
+    //zilchGroup.property("Transform").property("Opacity").setValue(50);
+    var zilchShape = zilchGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
+    zilchShape.property("Size").setValue([100,100]);
+    zilchShape.property("Size").expression = 'w = thisLayer.effect("z lch")("Width").value*10;\
+h = thisLayer.effect("z lch")("Height").value*10;\
+s = thisLayer.effect("z lch")("Square").value;\
+nW = value[0]+w\
+nH = value[1]+h\
+if(s==1) { [nH = nW] } else { nH = value[1]+h }\
+[nW,nH]';
+    var zilchStroke = zilchGroup.property("Contents").addProperty("ADBE Vector Graphic - Stroke");
+    var strokeColor = zilchStroke.property("Color").setValue([255,0,200]);
+    zilchStroke.property("Stroke Width").setValue(2);
+    zilchStroke.property("Stroke Width").expression = "// via https://help.battleaxe.co/freebies/buttcapper.html#maintain-stroke-width\
+\
+value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
+    return [zilchLayer, zilchStroke];
 }
