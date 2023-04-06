@@ -11,10 +11,11 @@ Inspired by:
 None of the above achieved everything I wanted in one package, so I took it as a scripting challenge to create my own set of tools.
 
 Distinct features:
-- The duration of any created layer matches the combined length of the currently selected layers
+- The duration of any created layer always matches the combined length of the currently selected layers
 - Hold Shift to create one zilch (Null) per selected layer
+- Hold Ctrl to link the opacity of the selected layers to the opacity of the zilch layer
 - Hold Alt with one layer selected to transfer all transform keyframes to the zilch layer
-- Shift and Alt can be combined to transfer transform controls of each layer to their own zilch layer
+- Shift ALt and Ctrl can be used in any combination
 - zest (Adjustment Layer) always fills comp and stays centered (effectively locked without actually being locked in timeline)
 - Option for zone (Solid) to always fill comp
 - zone width, height, square, roundness, and color controls
@@ -50,13 +51,14 @@ if (kButton) {
     switch(kButton.argument) {
         case 'zilch':
             app.beginUndoGroup("Add zilch");
-            if (keyState.shiftKey && layers.length>0) {
+            var mods = [keyState.ctrlKey, keyState.altKey, keyState.shiftKey];
+            if (mods[2] && layers.length > 0) {
                 for (var n = 0; n < layers.length; n++) {
                     var thisLayer = [layers[n]];
-                    zilch(thisLayer);
+                    zilch(thisLayer, mods);
                 }
             } else
-                zilch(layers);
+                zilch(layers, mods);
             app.endUndoGroup();
         break;
 
@@ -81,8 +83,40 @@ if (kButton) {
     buildPanel();
 }
 
-function zilch(layers) {
-    var keyState = ScriptUI.environment.keyboardState;
+function buildPanel(){
+    var window = new Window("palette", "zZz", undefined);
+    var zilchButton = window.add("button",undefined,"zilch");
+    var zestButton = window.add("button",undefined,"zest");
+    var zoneButton = window.add("button",undefined,"zone");
+    window.show();
+
+    zilchButton.onClick = function() {
+        var comp = app.project.activeItem;
+        var layers = comp.selectedLayers;
+        var allLayers = comp.layers;
+        var keyState = ScriptUI.environment.keyboardState;
+        app.beginUndoGroup("Add zilch");
+        var mods = [keyState.ctrlKey, keyState.altKey, keyState.shiftKey];
+        if (mods[2] && layers.length > 0) {
+            for (var n = 0; n < layers.length; n++) {
+                var thisLayer = [layers[n]];
+                zilch(thisLayer, mods);
+            }
+        } else
+            zilch(layers, mods);
+        app.endUndoGroup();
+    }
+    
+    zestButton.onClick = function() {
+        zest();
+    }
+    
+    zoneButton.onClick = function() {
+        zone();
+    }
+}
+
+function zilch(layers, mods){
     // Set name
     var allLayers = comp.layers;
     var index =1;
@@ -198,6 +232,10 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
                 oZArray.push(0);
             }
 
+            // Link transparency to zilch layer if Ctrl is pressed
+            if (mods[0])
+                layers[i].transform.opacity.expression = 'value * (thisComp.layer("' + zilchLayer.name + '").transform.opacity.value/100)';
+
             // Reset parent if included with selected layers
             if(thisParent != null) {
                 for(var g = 0; g < layers.length; g++){
@@ -233,7 +271,8 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
         }
 
         // Transfer transform values from single selected layer to zilch layer if Alt key is pressed
-        if (layers.length == 1 && keyState.altKey)
+        // alert(alt);
+        if (layers.length == 1 && mods[1])
             transformKeys(layers[0], zilchLayer, t);
 
         // Parent layer to zilch unless parent layer is also selected
@@ -258,7 +297,7 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
     app.executeCommand(2771);
 }
 
-function zest() {
+function zest(){
     var comp = app.project.activeItem;
     var layers = comp.selectedLayers;
     var allLayers = comp.layers;
@@ -339,7 +378,7 @@ else\
     app.endUndoGroup();
 }
 
-function zone() {
+function zone(){
     var comp = app.project.activeItem;
     var layers = comp.selectedLayers;
     var allLayers = comp.layers;
@@ -430,38 +469,6 @@ if ( f==1 && !thisLayer.hasParent) {\
     app.endUndoGroup();
 }
 
-function buildPanel() {
-    var window = new Window("palette", "zZz", undefined);
-    var zilchButton = window.add("button",undefined,"zilch");
-    var zestButton = window.add("button",undefined,"zest");
-    var zoneButton = window.add("button",undefined,"zone");
-    window.show();
-
-    zilchButton.onClick = function() {
-        var comp = app.project.activeItem;
-        var layers = comp.selectedLayers;
-        var allLayers = comp.layers;
-        var keyState = ScriptUI.environment.keyboardState;
-        app.beginUndoGroup("Add zilch");
-        if (keyState.shiftKey && layers.length>0) {
-            for (var n = 0; n < layers.length; n++) {
-                var thisLayer = [layers[n]];
-                zilch(thisLayer);
-            }
-        } else
-            zilch(layers);
-        app.endUndoGroup();
-    }
-    
-    zestButton.onClick = function() {
-        zest();
-    }
-    
-    zoneButton.onClick = function() {
-        zone();
-    }
-}
-
 function arrayAverage(arr){
     var sum = 0;
     if (arr.length>0) {
@@ -486,7 +493,7 @@ function arrayAverage(arr){
 
 // applyPseudoEffect() via NT Production: https://youtu.be/FOazhcjKFYU
 // and RenderTom: https://bitbucket.org/rendertom/_snippets_/src/c52a28cb7bff72f1ca8a6f4bf3824dc62a342f8a/After%20Effects/Apply%20Pseudo%20Effect%20as%20Animation%20Preset.jsx
-function applyPseudoEffect(pseudoEffectData, effectsProp) {
+function applyPseudoEffect(pseudoEffectData, effectsProp){
     var pseudoEffect,
         ffxFile,
         writeFile = function (pathToFile, content, encoding) {
@@ -659,51 +666,63 @@ function transformKeys(thisLayer, newLayer, t){
     ogScale = thisLayer.transform.scale.valueAtTime(t,1);
     var scaleKeys = collectKeyframes(thisLayer.transform.scale);
     var scaleMove = transferKeyframes(newLayer.transform.scale, scaleKeys);
-    if(scaleMove == true)
+    if(scaleMove == true) {
         removeKeyframes(thisLayer.transform.scale);
-    thisLayer.transform.scale.setValue(ogScale);
-
+        thisLayer.transform.scale.setValue(ogScale);
+    }
     ogPos = thisLayer.transform.position.valueAtTime(t,1);
     var posKeys = collectKeyframes(thisLayer.transform.position);
     var posMove = transferKeyframes(newLayer.transform.position, posKeys);
-    if(posMove == true)
+    if(posMove == true) {
         removeKeyframes(thisLayer.transform.position);
-    thisLayer.transform.position.setValue(ogPos);
+        thisLayer.transform.position.setValue(ogPos);
+    }
+    ogOp = thisLayer.transform.opacity.valueAtTime(t,1);
+    var oPKeys = collectKeyframes(thisLayer.transform.opacity);
+    var oPMove = transferKeyframes(newLayer.transform.opacity, oPKeys);
+    if(oPMove == true) {
+        removeKeyframes(thisLayer.transform.opacity);
+        thisLayer.transform.opacity.setValue(100);
+        // Link opacity value to maintain animation
+        thisLayer.transform.opacity.expression = 'value * (thisComp.layer("' + newLayer.name + '").transform.opacity.value/100)';
+    }
     
     if (!thisLayer.threeDLayer){
         ogRot = thisLayer.transform.rotation.valueAtTime(t,1);
         var rotKeys = collectKeyframes(thisLayer.transform.rotation);
         var rotMove = transferKeyframes(newLayer.transform.rotation, rotKeys);
-        if(rotMove == true)
+        if(rotMove == true) {
             removeKeyframes(thisLayer.transform.rotation);
-        thisLayer.transform.rotation.setValue(ogRot);
+            thisLayer.transform.rotation.setValue(ogRot);
+        }
     } else {
         ogOr = thisLayer.transform.orientation.valueAtTime(t,1);
         var orKeys = collectKeyframes(thisLayer.transform.orientation);
         var orMove = transferKeyframes(newLayer.transform.orientation, orKeys);
-        if(orMove == true)
+        if(orMove == true) {
             removeKeyframes(thisLayer.transform.orientation);
-        thisLayer.transform.orientation.setValue(ogOr);
-
+            thisLayer.transform.orientation.setValue(ogOr);
+        }
         ogXr = thisLayer.transform.xRotation.valueAtTime(t,1);
         var xRKeys = collectKeyframes(thisLayer.transform.xRotation);
         var xRMove = transferKeyframes(newLayer.transform.xRotation, xRKeys);
-        if(xRMove == true)
+        if(xRMove == true) {
             removeKeyframes(thisLayer.transform.xRotation);
-        thisLayer.transform.xRotation.setValue(ogXr);
-
+            thisLayer.transform.xRotation.setValue(ogXr);
+        }
         ogYr = thisLayer.transform.yRotation.valueAtTime(t,1);
         var yRKeys = collectKeyframes(thisLayer.transform.yRotation);
         var yRMove = transferKeyframes(newLayer.transform.yRotation, yRKeys);
-        if(yRMove == true)
+        if(yRMove == true) {
             removeKeyframes(thisLayer.transform.yRotation);
-        thisLayer.transform.yRotation.setValue(ogYr);
-
+            thisLayer.transform.yRotation.setValue(ogYr);
+        }
         ogZr = thisLayer.transform.zRotation.valueAtTime(t,1);
         var zRKeys = collectKeyframes(thisLayer.transform.zRotation);
         var zRMove = transferKeyframes(newLayer.transform.zRotation, zRKeys);
-        if(zRMove == true)
+        if(zRMove == true) {
             removeKeyframes(thisLayer.transform.zRotation);
-        thisLayer.transform.zRotation.setValue(ogZr);
+            thisLayer.transform.zRotation.setValue(ogZr);
+        }
     }
 }
