@@ -1,5 +1,6 @@
+// JSSatchell 2023
+
 /*********************************************
-JSSatchell 2023
 
 Use shape layers to replace Nulls (zilch), Solids (zone), and Adjustment Layers (zest)
 
@@ -17,11 +18,13 @@ Distinct features:
   - Hold `Ctrl` to link the opacity of the selected layers to the opacity of the new zilch layer
   - Hold `Alt` with one layer selected to transfer all transform keyframes to the zilch layer
   - `Shift`, `ALt`, and `Ctrl` can be used in any combination
-- zest (Adjustment Laer)
-  - Always fills comp and stays centered (effectively locked without actually being locked in timeline)
 - zone (Solid)
   - Option to always fill comp
   - Width, height, square, roundness, and color controls
+  - Hold `Ctrl` to place new zone at bottom of selected layers rather than top
+- zest (Adjustment Laer)
+  - Always fills comp and stays centered (effectively locked without actually being locked in timeline, can disable via checkbox)
+  - Hold `Ctrl` to place new zone at bottom of selected layers rather than top
 
 KBar arguments:
 - zilch = New Null Layer
@@ -51,10 +54,10 @@ if (kButton) {
     var layers = comp.selectedLayers;
     var allLayers = comp.layers;
     var keyState = ScriptUI.environment.keyboardState;
+    var mods = [keyState.ctrlKey, keyState.altKey, keyState.shiftKey];
     switch(kButton.argument) {
         case 'zilch':
             app.beginUndoGroup("Add zilch");
-            var mods = [keyState.ctrlKey, keyState.altKey, keyState.shiftKey];
             if (mods[2] && layers.length > 0) {
                 for (var n = 0; n < layers.length; n++) {
                     var thisLayer = [layers[n]];
@@ -70,7 +73,7 @@ if (kButton) {
         break;
 
         case 'zone':
-            zone();
+            zone(mods[0]);
         break;
 
         case '':
@@ -89,14 +92,16 @@ if (kButton) {
 function buildPanel(){
     var window = new Window("palette", "zZz", undefined);
     var zilchButton = window.add("button",undefined,"zilch");
-    var zestButton = window.add("button",undefined,"zest");
+    zilchButton.helpTip = 'Shift - Create one zilch per selected layer\nAlt - Move transform keyframes to zilch\nCtrl - Include transparency\nUse modifiers in any combination';
     var zoneButton = window.add("button",undefined,"zone");
+    zoneButton.helpTip = 'Ctrl -  place at bottom of layers.';
+    var zestButton = window.add("button",undefined,"zest");
+    zestButton.helpTip = 'Ctrl -  place at bottom of layers.';
     window.show();
 
     zilchButton.onClick = function() {
         var comp = app.project.activeItem;
         var layers = comp.selectedLayers;
-        var allLayers = comp.layers;
         var keyState = ScriptUI.environment.keyboardState;
         app.beginUndoGroup("Add zilch");
         var mods = [keyState.ctrlKey, keyState.altKey, keyState.shiftKey];
@@ -111,11 +116,13 @@ function buildPanel(){
     }
     
     zestButton.onClick = function() {
-        zest();
+        var keyState = ScriptUI.environment.keyboardState;
+        zest(keyState.ctrlKey);
     }
     
     zoneButton.onClick = function() {
-        zone();
+        var keyState = ScriptUI.environment.keyboardState;
+        zone(keyState.ctrlKey);
     }
 }
 
@@ -131,18 +138,18 @@ function zilch(layers, mods){
     zilchLayer.name = "» z lch " + index + " «";
     //zilchLayer.name = "+ z lch " + index + " +"; // if the symbols above cause problems
 
-    // Create zilch layer and set attributes
+    // Set attributes
     zilchLayer.guideLayer = 1;
-    if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
+    if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT)) {
         var nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT);
-    } else if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
+    } else if (app.preferences.havePref("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT)) {
         nullColor = app.preferences.getPrefAsLong("Label Preference Indices Section 5", "Null Label Index 2", PREFType.PREF_Type_MACHINE_INDEPENDENT);
     } else {
         nullColor = 9;
     }
     zilchLayer.label = nullColor;
 
-    // Apply zilch effect
+    // Apply zilch pseudo effect
     applyPseudoEffect(zlchExpansion, zilchLayer.property("ADBE Effect Parade"));
     zilchLayer.effect("").name = "z lch";
 
@@ -160,7 +167,7 @@ nH = value[1]+h\
 if(s==1) { [nH = nW] } else { nH = value[1]+h }\
 [nW,nH]';
     var zilchStroke = zilchGroup.property("Contents").addProperty("ADBE Vector Graphic - Stroke");
-    var strokeColor = zilchStroke.property("Color").setValue([255,0,200]);
+    zilchStroke.property("Color").setValue([255,0,200]);
     zilchStroke.property("Stroke Width").setValue(2);
     zilchStroke.property("Stroke Width").expression = "// via https://help.battleaxe.co/freebies/buttcapper.html#maintain-stroke-width\
 \
@@ -168,22 +175,21 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
 
     // Adapt to selected layers
     if(layers.length > 0) {
-        var newIn;
+        var newIn, newOut;
         var minIn = zilchLayer.outPoint;
-        var newOut;
         var maxOut = 0;
         var newIndx = layers.length;
-        xPosArray = [];
-        yPosArray = [];
-        zPosArray = [];
-        rXArray = [];
-        rYArray = [];
-        rZArray = [];
-        oXArray = [];
-        oYArray = [];
-        oZArray = [];
-        oldParent = layers[0].parent;
-        oldParentSet = 1;
+        var xPosArray = [];
+        var yPosArray = [];
+        var zPosArray = [];
+        var rXArray = [];
+        var rYArray = [];
+        var rZArray = [];
+        var oXArray = [];
+        var oYArray = [];
+        var oZArray = [];
+        var oldParent = layers[0].parent;
+        var oldParentSet = 1;
         zilchLayer.moveToEnd();
 
         for(var i = 0; i < layers.length; i++){
@@ -207,9 +213,9 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
             // Check if all layers have same parent
             if(layers[i].parent!=oldParent)
                 oldParentSet=0;
-            thisParent = layers[i].parent;
 
-            // Clear parent
+            // Save and clear parent
+            thisParent = layers[i].parent;
             layers[i].parent = null;
 
             // Collect transform values
@@ -239,7 +245,7 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
             if (mods[0])
                 layers[i].transform.opacity.expression = 'value * (thisComp.layer("' + zilchLayer.name + '").transform.opacity.value/100)';
 
-            // Reset parent if included with selected layers
+            // Reset parent if included in selected layers
             if(thisParent != null) {
                 for(var g = 0; g < layers.length; g++){
                     if(thisParent.name == layers[g].name)
@@ -274,9 +280,8 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
         }
 
         // Transfer transform values from single selected layer to zilch layer if Alt key is pressed
-        // alert(alt);
         if (layers.length == 1 && mods[1])
-            transformKeys(layers[0], zilchLayer, t);
+            transformKeys(layers[0], zilchLayer, t, mods[0]);
 
         // Parent layer to zilch unless parent layer is also selected
         for(var i = 0; i < layers.length; i++){
@@ -285,9 +290,8 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
         }
 
         // Set zilch parent to layer parent if all have same parent
-        if (oldParentSet == 1) {
+        if (oldParentSet == 1)
             zilchLayer.parent = oldParent;
-        }
     }
 
     // Add stroke properties to shape (will open property drop downs)
@@ -300,13 +304,13 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
     app.executeCommand(2771);
 }
 
-function zest(){
+function zest(pos){
     var comp = app.project.activeItem;
     var layers = comp.selectedLayers;
     var allLayers = comp.layers;
     
     app.beginUndoGroup("Add zest");
-
+    // Set name
     var index = 1;
     for (var i=1; i <= allLayers.length; i++) {
         if (allLayers[i].name.search("zëst")>0)
@@ -314,7 +318,9 @@ function zest(){
     }
     var zestLayer = comp.layers.addShape();
     zestLayer.name = "÷ zëst " + index + " ÷";
-    //zestLayer.name = "^ z st " + index +" ^";
+    //zestLayer.name = "^ z st " + index +" ^"; // if the above characters have issues
+
+    // Set layer attributes
     var zestGroup = zestLayer.property("Contents").addProperty("ADBE Vector Group");
     zestGroup.name = "z st shape";
     zestLayer.adjustmentLayer = 1;
@@ -327,6 +333,7 @@ function zest(){
     }
     zestLayer.label = adjColor;
     
+    // Build shape
     var zestShape = zestGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
     zestShape.property("Size").setValue([comp.width,comp.height]);
     zestLayer.Effects.addProperty("Checkbox Control");
@@ -347,47 +354,53 @@ else\
     var zestFill = zestGroup.property("Contents").addProperty("ADBE Vector Graphic - Fill");
     zestFill.property("Color").setValue([0,0,0]);
     
+    // Adjust based on selected layers
     if(layers.length > 0) {
-        var newIn;
+        var newIn, newOut;
         var minIn = zestLayer.outPoint;
-        var newOut;
         var maxOut = 0;
         var newIndx = layers.length;
-        zestLayer.moveToEnd();
+        if (!pos)
+            zestLayer.moveToEnd();
         
-        for(var i = 0; i < layers.length; i++){
+        for (var i = 0; i < layers.length; i++) {
             newIn = layers[i].inPoint;
             newOut = layers[i].outPoint;
             newIndx = layers[i].index;
-            if (newIn>newOut) { // Check for reversed layers
+            if (newIn > newOut) { // Check for reversed layers
                 var flip = newOut;
                 newOut = newIn;
                 newIn = flip;
             }
-            if(newIn < minIn) {
+            if (newIn < minIn)
                 minIn = newIn;
-            }
-            if(newOut > maxOut) {
+            if (newOut > maxOut)
                 maxOut = newOut;
-            }
-            if(newIndx < zestLayer.index) {
-                zestLayer.moveBefore(layers[i]);
+            if (pos) {
+                if(newIndx > zoneLayer.index)
+                    zoneLayer.moveAfter(layers[i]);
+            } else {
+                if(newIndx < zoneLayer.index)
+                    zoneLayer.moveBefore(layers[i]);
             }
         }
         zestLayer.inPoint = minIn;
         zestLayer.outPoint = maxOut;
+    } else {
+        if (pos)
+            zoneLayer.moveToEnd();
     }
     
     app.endUndoGroup();
 }
 
-function zone(){
+function zone(pos){
     var comp = app.project.activeItem;
     var layers = comp.selectedLayers;
     var allLayers = comp.layers;
 
     app.beginUndoGroup("Add zone");
-
+    // Set name
     var index = 1;
     for (var i=1; i <= allLayers.length; i++) {
         if (allLayers[i].name.search("zøne")>0)
@@ -395,7 +408,9 @@ function zone(){
     }
     var zoneLayer = comp.layers.addShape();
     zoneLayer.name = "¤ zøne " + index + " ¤";
-    //zoneLayer.name = "[ z ne " + index + " ]";
+    //zoneLayer.name = "[ z ne " + index + " ]"; // if the above characters have issues
+
+    // Set layer attributes
     var zoneGroup = zoneLayer.property("Contents").addProperty("ADBE Vector Group");
     zoneGroup.name = "z ne shape";
     if (app.preferences.havePref("Label Preference Indices Section 5", "Solid Label Index", PREFType.PREF_Type_MACHINE_INDEPENDENT) == 1) {
@@ -407,9 +422,11 @@ function zone(){
     }
     zoneLayer.label = solidColor;
 
+    // Apply zone pseudo effect
     applyPseudoEffect(zoneControl, zoneLayer.property("ADBE Effect Parade"));
     zoneLayer.effect("").name = "zone Controls";
     
+    // Build shape
     var zoneShape = zoneGroup.property("Contents").addProperty("ADBE Vector Shape - Rect");
     zoneShape.property("Size").setValue([comp.width,comp.height]);
     zoneLayer.effect("zone Controls").property("Width").setValue(comp.width);
@@ -437,36 +454,41 @@ if ( f==1 && !thisLayer.hasParent) {\
     var zoneFill = zoneGroup.property("Contents").addProperty("ADBE Vector Graphic - Fill");
     zoneFill.property("Color").expression = 'effect("zone Controls")("Color").value';
     
+    // Adjust based on selected layers
     if(layers.length > 0) {
-        var newIn;
+        var newIn, newOut;
         var minIn = zoneLayer.outPoint;
-        var newOut;
         var maxOut = 0;
-        var topIndx = layers.length;
         var newIndx = layers.length;
-        zoneLayer.moveToEnd();
+        if (!pos)
+            zoneLayer.moveToEnd();
         
-        for(var i = 0; i < layers.length; i++){
+        for (var i = 0; i < layers.length; i++) {
             newIn = layers[i].inPoint;
             newOut = layers[i].outPoint;
             newIndx = layers[i].index;
-            if (newIn>newOut) { // Check for reversed layers
+            if (newIn > newOut) { // Check for reversed layers
                 var flip = newOut;
                 newOut = newIn;
                 newIn = flip;
             }
-            if(newIn < minIn) {
+            if (newIn < minIn)
                 minIn = newIn;
-            }
-            if(newOut > maxOut) {
+            if (newOut > maxOut)
                 maxOut = newOut;
-            }
-            if(newIndx < zoneLayer.index) {
-                zoneLayer.moveBefore(layers[i]);
+            if (pos) {
+                if(newIndx > zoneLayer.index)
+                    zoneLayer.moveAfter(layers[i]);
+            } else {
+                if(newIndx < zoneLayer.index)
+                    zoneLayer.moveBefore(layers[i]);
             }
         }
         zoneLayer.inPoint = minIn;
         zoneLayer.outPoint = maxOut;
+    } else {
+        if (pos)
+            zoneLayer.moveToEnd();
     }
     
     app.endUndoGroup();
@@ -494,7 +516,7 @@ function arrayAverage(arr){
     return result;
 }
 
-// applyPseudoEffect() via NT Production: https://youtu.be/FOazhcjKFYU
+// applyPseudoEffect() via NT Productions: https://youtu.be/FOazhcjKFYU
 // and RenderTom: https://bitbucket.org/rendertom/_snippets_/src/c52a28cb7bff72f1ca8a6f4bf3824dc62a342f8a/After%20Effects/Apply%20Pseudo%20Effect%20as%20Animation%20Preset.jsx
 function applyPseudoEffect(pseudoEffectData, effectsProp){
     var pseudoEffect,
@@ -516,7 +538,10 @@ function applyPseudoEffect(pseudoEffectData, effectsProp){
         };
 
     if (!effectsProp.canAddProperty(pseudoEffectData.matchName)) {
-        ffxFile = writeFile(Folder.desktop.fsName + "/" + pseudoEffectData.name + ".ffx", pseudoEffectData.binary, "BINARY");
+        var jssFolder = new Folder(Folder.myDocuments.fsName + "/Adobe/After Effects 20" + app.buildName.substr(0,2) + "/User Presets/JSS Media");
+        if (!jssFolder.exists)
+                jssFolder.create();
+        ffxFile = writeFile(jssFolder + "/" + pseudoEffectData.name + ".ffx", pseudoEffectData.binary, "BINARY");
         makePseudoEffectLive(ffxFile);
     }
 
@@ -665,7 +690,7 @@ function removeKeyframes(propertyInput){
 	}
 }
 
-function transformKeys(thisLayer, newLayer, t){
+function transformKeys(thisLayer, newLayer, t, opChck){
     ogScale = thisLayer.transform.scale.valueAtTime(t,1);
     var scaleKeys = collectKeyframes(thisLayer.transform.scale);
     var scaleMove = transferKeyframes(newLayer.transform.scale, scaleKeys);
@@ -680,14 +705,18 @@ function transformKeys(thisLayer, newLayer, t){
         removeKeyframes(thisLayer.transform.position);
         thisLayer.transform.position.setValue(ogPos);
     }
-    ogOp = thisLayer.transform.opacity.valueAtTime(t,1);
-    var oPKeys = collectKeyframes(thisLayer.transform.opacity);
-    var oPMove = transferKeyframes(newLayer.transform.opacity, oPKeys);
-    if(oPMove == true) {
-        removeKeyframes(thisLayer.transform.opacity);
-        thisLayer.transform.opacity.setValue(100);
-        // Link opacity value to maintain animation
-        thisLayer.transform.opacity.expression = 'value * (thisComp.layer("' + newLayer.name + '").transform.opacity.value/100)';
+
+    // Include opacity only if "Alt" is pressed
+    if (opChck) {
+        ogOp = thisLayer.transform.opacity.valueAtTime(t,1);
+        var oPKeys = collectKeyframes(thisLayer.transform.opacity);
+        var oPMove = transferKeyframes(newLayer.transform.opacity, oPKeys);
+        if(oPMove == true) {
+            removeKeyframes(thisLayer.transform.opacity);
+            thisLayer.transform.opacity.setValue(100);
+            // Link opacity value to maintain animation
+            thisLayer.transform.opacity.expression = 'value * (thisComp.layer("' + newLayer.name + '").transform.opacity.value/100)';
+        }
     }
     
     if (!thisLayer.threeDLayer){
