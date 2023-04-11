@@ -14,11 +14,13 @@ Distinct features:
   - Hold `Ctrl` to link the opacity of the selected layers to the opacity of the new zilch layer
   - Hold `Alt` with one layer selected to transfer all transform keyframes to the zilch layer
   - `Shift`, `ALt`, and `Ctrl` can be used in any combination
-- zest (Adjustment Laer)
-  - Always fills comp and stays centered (effectively locked without actually being locked in timeline)
 - zone (Solid)
   - Option to always fill comp
   - Width, height, square, roundness, and color controls
+  - Hold `Ctrl` to place new zone at bottom of selected layers rather than top
+- zest (Adjustment Laer)
+  - Always fills comp and stays centered (effectively locked without actually being locked in timeline, can disable via checkbox)
+  - Hold `Ctrl` to place new zest at bottom of selected layers rather than top
 
 KBar arguments:
 - zilch = New Null Layer
