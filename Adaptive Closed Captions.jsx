@@ -1,6 +1,6 @@
 // JSSatchell 2023
 
-// Creates a text layer and a shape layer.
+// Creates a text layer and a shape layer
 // Add markers to the text layer to create your captions
 // The shape layer will adapt to the size of the text layer
 // Position, shape size, transparency and color controls provided via pseudo effect
@@ -116,7 +116,9 @@ pos-pos';
     bgLayer.label = 0;
 }
 
-function applyPseudoEffect(pseudoEffectData, effectsProp) {
+// applyPseudoEffect() via NT Productions: https://youtu.be/FOazhcjKFYU
+// and RenderTom: https://bitbucket.org/rendertom/_snippets_/src/c52a28cb7bff72f1ca8a6f4bf3824dc62a342f8a/After%20Effects/Apply%20Pseudo%20Effect%20as%20Animation%20Preset.jsx
+function applyPseudoEffect(pseudoEffectData, effectsProp){
     var pseudoEffect,
         ffxFile,
         writeFile = function (pathToFile, content, encoding) {
@@ -136,7 +138,10 @@ function applyPseudoEffect(pseudoEffectData, effectsProp) {
         };
 
     if (!effectsProp.canAddProperty(pseudoEffectData.matchName)) {
-        ffxFile = writeFile(Folder.desktop.fsName + "/" + pseudoEffectData.name + ".ffx", pseudoEffectData.binary, "BINARY");
+        var jssFolder = new Folder(Folder.myDocuments.fsName + "/Adobe/After Effects 20" + app.buildName.substr(0,2) + "/User Presets/JSS Media");
+        if (!jssFolder.exists)
+            jssFolder.create();
+        ffxFile = writeFile(jssFolder.fsName + "/" + pseudoEffectData.name + ".ffx", pseudoEffectData.binary, "BINARY");
         makePseudoEffectLive(ffxFile);
     }
 
