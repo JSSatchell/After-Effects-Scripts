@@ -83,10 +83,10 @@ function buildPanel() {
     var compInButton = window.add("button",undefined,"Comp In");
     var compOutButton = window.add("button",undefined,"Comp Out");
     var compInOutButton = window.add("button",undefined,"Comp In & Out");
-    var note = window.add("statictext", undefined, 'Use "Alt" to include locked layers.');
+    window.add("statictext", undefined, 'Use "Alt" to include locked layers.');
     window.show();
  
-    compInButton.onClick = function video() {
+    compInButton.onClick = function() {
         var keyState = ScriptUI.environment.keyboardState;
         app.beginUndoGroup('Change comp duration');
         if(keyState.altKey)
@@ -106,7 +106,7 @@ function buildPanel() {
         app.endUndoGroup();
     }
 
-    compInOutButton.onClick = function () {
+    compInOutButton.onClick = function() {
         var keyState = ScriptUI.environment.keyboardState;
         app.beginUndoGroup('Change comp duration');
         if(keyState.altKey)
