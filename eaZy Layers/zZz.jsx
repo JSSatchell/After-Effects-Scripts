@@ -69,7 +69,7 @@ if (kButton) {
         break;
 
         case 'zest':
-            zest();
+            zest(mods[0]);
         break;
 
         case 'zone':
