@@ -377,18 +377,18 @@ else\
             if (newOut > maxOut)
                 maxOut = newOut;
             if (pos) {
-                if(newIndx > zoneLayer.index)
-                    zoneLayer.moveAfter(layers[i]);
+                if(newIndx > zestLayer.index)
+                    zestLayer.moveAfter(layers[i]);
             } else {
-                if(newIndx < zoneLayer.index)
-                    zoneLayer.moveBefore(layers[i]);
+                if(newIndx < zestLayer.index)
+                    zestLayer.moveBefore(layers[i]);
             }
         }
         zestLayer.inPoint = minIn;
         zestLayer.outPoint = maxOut;
     } else {
         if (pos)
-            zoneLayer.moveToEnd();
+            zestLayer.moveToEnd();
     }
     
     app.endUndoGroup();
