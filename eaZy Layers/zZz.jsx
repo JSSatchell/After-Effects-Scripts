@@ -24,7 +24,7 @@ Distinct features:
   - Hold `Ctrl` to place new zone at bottom of selected layers rather than top
 - zest (Adjustment Laer)
   - Always fills comp and stays centered (effectively locked without actually being locked in timeline, can disable via checkbox)
-  - Hold `Ctrl` to place new zone at bottom of selected layers rather than top
+  - Hold `Ctrl` to place new zest at bottom of selected layers rather than top
 
 KBar arguments:
 - zilch = New Null Layer
