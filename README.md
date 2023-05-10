@@ -10,13 +10,13 @@ Inspired by:
 - No Solids – https://elementsupply.co/products/scripts/nosolids/
 - Turbo Layers – https://aescripts.com/turbolayers/
 
-None of the above achieved everything I wanted in one package, so I took it as a scripting challenge to create my own set of tools.
+None of the above achieved everything I wanted in one package, so I took it as a scripting challenge to create my own set of tools from scratch.
 
 Distinct features:
 - The duration of any created layer always matches the combined length of the currently selected layers
 - zilch (Null)
   - Option to create one zilch per selected layer
-  - Option to ink the opacity of the selected layers to the opacity of the new zilch layer
+  - Option to link the opacity of the selected layers to the opacity of the new zilch layer
   - Option to transfer all transform keyframes to the zilch layer
 - zone (Solid)
   - Option to always fill comp
