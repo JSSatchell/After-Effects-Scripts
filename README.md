@@ -1,6 +1,8 @@
 This is a collection of scripts I have written or modified that make my personal workflow in After Effects a bit easier.
 
-### eaZy Layers:
+Read below or look at comments in code for more info.
+
+### [eaZy Layers](https://github.com/JSSatchell/After-Effects-Scripts/tree/main/eaZy%20Layers)
 Use shape layers to replace Nulls (zilch), Solids (zone), and Adjustment Layers (zest)
 
 Inspired by:
@@ -13,9 +15,9 @@ None of the above achieved everything I wanted in one package, so I took it as a
 Distinct features:
 - The duration of any created layer always matches the combined length of the currently selected layers
 - zilch (Null)
-  - Create one zilch per selected layer
-  - Link the opacity of the selected layers to the opacity of the new zilch layer
-  - Transfer all transform keyframes to the zilch layer
+  - Option to create one zilch per selected layer
+  - Option to ink the opacity of the selected layers to the opacity of the new zilch layer
+  - Option to transfer all transform keyframes to the zilch layer
 - zone (Solid)
   - Option to always fill comp
   - Width, height, square, roundness, and color controls
@@ -25,24 +27,24 @@ Distinct features:
   - Option to place new zest at bottom of selected layers rather than top
 ---
 
-### Fade Layers:
+### [Fade Layers](https://github.com/JSSatchell/After-Effects-Scripts/tree/main/Fade%20Layers)
 Creates audio/video fade controls based on markers or in/out points for all selected layers
 
 ---
 
-### Colored Markers:
+### [Colored Markers](https://github.com/JSSatchell/After-Effects-Scripts/tree/main/Colored%20Markers)
 Primarily for use with [Labels](https://aescripts.com/labels/), this will add a marker of the selected color to all selected layers, or to the composition if no layer is selected
 
 Also available for KBar, with preset toolbar file included
 
 ---
 
-### Adaptive Closed Captions:
+### [Adaptive Closed Captions](https://github.com/JSSatchell/After-Effects-Scripts/blob/main/Adaptive%20Closed%20Captions.jsx)
 Creates a text layer that adapts text to markers and a shape layer that maintains size relative to current text
 
 ---
 
-### Comp Length to Contents:
+### [Comp Length to Contents](https://github.com/JSSatchell/After-Effects-Scripts/blob/main/Comp%20Length%20to%20Contents.jsx)
 Sets comp duration based on the length of the selected layers, or else all layers in the comp
 
 Compare to the Zack Lovatt script ["Trim Comp to Contents"](https://aescripts.com/trim-to-comp-contents/)
