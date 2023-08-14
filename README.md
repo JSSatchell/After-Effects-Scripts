@@ -2,7 +2,7 @@ This is a collection of scripts I have written or modified that make my personal
 
 Read below or look at comments in code for more info.
 
-### [eaZy Layers](https://github.com/JSSatchell/After-Effects-Scripts/tree/main/eaZy%20Layers)
+### [eaZy Layers](https://github.com/JSSatchell/After-Effects-Scripts/tree/main/eaZy%20Layers) - zilch, zone, zest
 Use shape layers to replace Nulls (zilch), Solids (zone), and Adjustment Layers (zest)
 
 Inspired by:
