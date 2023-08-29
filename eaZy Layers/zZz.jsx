@@ -283,6 +283,9 @@ value / Math.max(length(toComp([0,0]), toComp([0.7071,0.7071])), 0.001)";
         if (layers.length == 1 && mods[1])
             transformKeys(layers[0], zilchLayer, t, mods[0]);
 
+        // Uncomment below to split dimensions for position property by default
+        // zilchLayer.transform.position.dimensionsSeparated = true;
+
         // Parent layer to zilch unless parent layer is also selected
         for(var i = 0; i < layers.length; i++){
             if (layers[i].parent == null)
