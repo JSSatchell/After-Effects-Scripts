@@ -27,24 +27,24 @@ Distinct features:
   - Option to place new zest at bottom of selected layers rather than top
 ---
 
-### [Fade Layers](https://github.com/JSSatchell/After-Effects-Scripts/tree/main/Fade%20Layers)
+### [Fade Layers](https://github.com/JSSatchell/After-Effects-Scripts/tree/main/Fade%20Layers) - [Demo](https://youtu.be/byEFCpwtjYA)
 Creates audio/video fade controls based on markers or in/out points for all selected layers
 
 ---
 
-### [Colored Markers](https://github.com/JSSatchell/After-Effects-Scripts/tree/main/Colored%20Markers)
+### [Colored Markers](https://github.com/JSSatchell/After-Effects-Scripts/tree/main/Colored%20Markers) - [Demo](https://youtu.be/i7ZW1uRf3kY)
 Primarily for use with [Labels](https://aescripts.com/labels/), this will add a marker of the selected color to all selected layers, or to the composition if no layer is selected
 
 Also available for KBar, with preset toolbar file included
 
 ---
 
-### [Adaptive Closed Captions](https://github.com/JSSatchell/After-Effects-Scripts/blob/main/Adaptive%20Closed%20Captions.jsx)
+### [Adaptive Closed Captions](https://github.com/JSSatchell/After-Effects-Scripts/blob/main/Adaptive%20Closed%20Captions.jsx) - [Demo](https://youtu.be/Nv624ebIbf4)
 Creates a text layer that adapts text to markers and a shape layer that maintains size relative to current text
 
 ---
 
-### [Comp Length to Contents](https://github.com/JSSatchell/After-Effects-Scripts/blob/main/Comp%20Length%20to%20Contents.jsx)
+### [Comp Length to Contents](https://github.com/JSSatchell/After-Effects-Scripts/blob/main/Comp%20Length%20to%20Contents.jsx) - [Demo](https://youtu.be/NP-VyGWtlXY)
 Sets comp duration based on the length of the selected layers, or else all layers in the comp
 
 Compare to the Zack Lovatt script ["Trim Comp to Contents"](https://aescripts.com/trim-to-comp-contents/)
