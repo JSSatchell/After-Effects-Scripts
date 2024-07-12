@@ -1,4 +1,4 @@
-// JSSatchell 2023
+// JSSatchell 2024
 
 // Creates markers to fade the video in and out of selected layers
 // Effect options are created to use the markers or set a custom duration from the layer start/end point
@@ -14,8 +14,13 @@ var pseudoEffectData = {
 app.beginUndoGroup("Add Video Fade");
 
 for(var i = 0; i < layers.length; i++) {
-      var inMrk = layers[i].inPoint + .5;
-      var outMrk = layers[i].outPoint - .5;
+      var newIn = layers[i].inPoint;
+      var newOut = layers[i].outPoint;
+      if (newIn>newOut) { // Check for reversed layers
+         var flip = newOut;
+         newOut = newIn;
+         newIn = flip;
+      }
       var inNme = new MarkerValue("In");
       var outNme = new MarkerValue("Out");
      
@@ -23,8 +28,8 @@ for(var i = 0; i < layers.length; i++) {
       layers[i].marker.setValueAtTime(outMrk, outNme);
      
       var pseudoEffect = applyPseudoEffect(pseudoEffectData, layers[i].property("ADBE Effect Parade"));
-     layers[i].effect("").name = "Fade Video";
-     //alert("Applied \"" + pseudoEffect.name + "\" Pseudo Effect.");
+      layers[i].effect("").name = "Fade Video";
+      //alert("Applied \"" + pseudoEffect.name + "\" Pseudo Effect.");
 
       layers[i].effect("Fade Video").property("Based On").expression = 'try { inMark = thisLayer.marker.key("In"); } catch (err) { inMark = false; }\
 try { outMark = thisLayer.marker.key("Out"); } catch (err) { outMark = false; }\
