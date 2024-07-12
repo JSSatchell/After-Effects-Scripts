@@ -1,7 +1,8 @@
-// JSSatchell 2023
+// JSSatchell 2024
 
 // Creates fade controls for selected layers' video or audio
 // For KBar, pass arguments of "video" or "audio"
+// Demo video: https://youtu.be/byEFCpwtjYA?feature=shared
 
 var button = (typeof kbar !== 'undefined') ? kbar.button : null;
 var pseudoEffectData = {
@@ -58,8 +59,15 @@ function video() {
    app.beginUndoGroup("Add Video Fade");
 
    for(var i = 0; i < layers.length; i++) {
-         var inMrk = layers[i].inPoint + .5;
-         var outMrk = layers[i].outPoint - .5;
+         var newIn = layers[i].inPoint;
+         var newOut = layers[i].outPoint;
+         if (newIn>newOut) { // Check for reversed layers
+            var flip = newOut;
+            newOut = newIn;
+            newIn = flip;
+         }
+         var inMrk = newIn + .5;
+         var outMrk = newOut - .5;
          var inNme = new MarkerValue("In");
          var outNme = new MarkerValue("Out");
         
@@ -181,8 +189,15 @@ function audio() {
    var layers = comp.selectedLayers;
     app.beginUndoGroup("Fade Audio");    
     for(var i = 0; i < layers.length; i++) {
-         var inMrk = layers[i].inPoint + 1;
-         var outMrk = layers[i].outPoint - 1;
+         var newIn = layers[i].inPoint;
+         var newOut = layers[i].outPoint;
+         if (newIn>newOut) { // Check for reversed layers
+            var flip = newOut;
+            newOut = newIn;
+            newIn = flip;
+         }
+         var inMrk = newIn + .5;
+         var outMrk = newOut - .5;
          var inNme = new MarkerValue("Audio In");
          var outNme = new MarkerValue("Audio Out");
          
