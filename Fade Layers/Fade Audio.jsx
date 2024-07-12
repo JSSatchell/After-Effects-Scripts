@@ -1,4 +1,4 @@
-// JSSatchell 2023
+// JSSatchell 2024
 
 // Creates markers to fade the audio in and out of selected layers
 // Effect options are created to use the markers or set a custom duration from the layer start/end point
@@ -12,9 +12,15 @@ var pseudoEffectData = {
 };
 
 app.beginUndoGroup("Fade Audio");    
+
 for(var i = 0; i < layers.length; i++) {
-      var inMrk = layers[i].inPoint + 1;
-      var outMrk = layers[i].outPoint - 1;
+      var newIn = layers[i].inPoint;
+      var newOut = layers[i].outPoint;
+      if (newIn>newOut) { // Check for reversed layers
+         var flip = newOut;
+         newOut = newIn;
+         newIn = flip;
+      }
       var inNme = new MarkerValue("Audio In");
       var outNme = new MarkerValue("Audio Out");
       
