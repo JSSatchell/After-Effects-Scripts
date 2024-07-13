@@ -122,6 +122,7 @@ ddInOut = thisLayer.effect("Fade Video")("In/Out").value;\
 inDurSet = thisLayer.effect("Fade Video")("Fade In Duration").value;\
 outDurSet = thisLayer.effect("Fade Video")("Fade Out Duration").value;\
 syncFade = thisLayer.effect("Fade Video")("Symmetrical Fade?").value;\
+rev = 0;\
 \
 try {\
    inMark = thisLayer.marker.key("In");\
@@ -135,6 +136,13 @@ try {\
    outMark=false;\
 }\
 \
+if (inPoint>outPoint) { // Check for reversed layers\
+   var flip = outPoint;\
+   newOut = inPoint;\
+   newIn = flip;\
+   rev = 1;\
+}\
+\
 inStart = inPoint;\
 outEnd = outPoint;\
 inDur = 0;\
@@ -143,18 +151,26 @@ outDur = 0;\
 if (ddBased == 1) {\
    if (inMark) {\
       if (inMark.duration > 0) {\
-         inStart = inMark.time;\
-         inDur = (inMark.time + inMark.duration) - inStart;\
+         if (rev == 0) {\
+            inStart = inMark.time;\
+            inDur = (inMark.time + inMark.duration) - inStart;\
+         } else {\
+            inStart = inMark.time;\
+            inDur = (inMark.time - inMark.duration) - inStart;\
+         }\
       } else {\
          inDur = inMark.time - inStart;\
       }\
-   }\
    if (outMark){\
       if (outMark.duration > 0) {\
-         outEnd = outMark.time + outMark.duration;\
+         if (rev == 0) {\
+            outEnd = outMark.time + outMark.duration;\
+         } else {\
+            outEnd = outMark.time - outMark.duration;\
+         }\
          outDur = outEnd - outMark.time;\
-      } else {\
-         outDur = outEnd - outMark.time;\
+         } else {\
+            outDur = outEnd - outMark.time;\
       }\
    } else if ( syncFade == 1 ) {\
       outDur = inDur;\
@@ -254,6 +270,7 @@ outDurSet = thisLayer.effect("Fade Audio")("Fade Out Duration").value;\
 syncFade = thisLayer.effect("Fade Audio")("Symmetrical Fade?").value;\
 layerDuration = outPoint - inPoint;\
 minVol = -50;\
+rev = 0;\
 \
 try {\
    inMark = thisLayer.marker.key("Audio In");\
@@ -267,26 +284,41 @@ try {\
    outMark=false;\
 }\
 \
-inStart = inPoint;\
-outEnd = outPoint; \
+if (inPoint>outPoint) { // Check for reversed layers\
+   var flip = outPoint;\
+   newOut = inPoint;\
+   newIn = flip;\
+   rev = 1;\
+}\
+\
+inStart = newIn;\
+outEnd = newOut; \
 inDur = 0;\
 outDur = 0;\
 \
 if (ddBased == 1) {\
    if (inMark) {\
       if (inMark.duration > 0) {\
-         inStart = inMark.time;\
-         inDur = (inMark.time + inMark.duration) - inStart;\
+         if (rev == 0) {\
+            inStart = inMark.time;\
+            inDur = (inMark.time + inMark.duration) - inStart;\
+         } else {\
+            inStart = inMark.time;\
+            inDur = (inMark.time - inMark.duration) - inStart;\
+         }\
       } else {\
          inDur = inMark.time - inStart;\
       }\
-   }\
    if (outMark){\
       if (outMark.duration > 0) {\
-         outEnd = outMark.time + outMark.duration;\
+         if (rev == 0) {\
+            outEnd = outMark.time + outMark.duration;\
+         } else {\
+            outEnd = outMark.time - outMark.duration;\
+         }\
          outDur = outEnd - outMark.time;\
-      } else {\
-         outDur = outEnd - outMark.time;\
+         } else {\
+            outDur = outEnd - outMark.time;\
       }\
    } else if ( syncFade == 1 ) {\
       outDur = inDur;\
