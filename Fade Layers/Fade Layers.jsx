@@ -136,15 +136,15 @@ try {\
    outMark=false;\
 }\
 \
-if (inPoint>outPoint) { // Check for reversed layers\
-   var flip = outPoint;\
-   newOut = inPoint;\
-   newIn = flip;\
-   rev = 1;\
-}\
+ if (inPoint>outPoint) { // Check for reversed layers\
+	var flip = outPoint;\
+	newOut = inPoint;\
+	newIn = flip;\
+	rev = 1;\
+ }\
 \
-inStart = inPoint;\
-outEnd = outPoint;\
+inStart = newIn;\
+outEnd = newOut;\
 inDur = 0;\
 outDur = 0;\
 \
@@ -161,6 +161,7 @@ if (ddBased == 1) {\
       } else {\
          inDur = inMark.time - inStart;\
       }\
+   }\
    if (outMark){\
       if (outMark.duration > 0) {\
          if (rev == 0) {\
@@ -169,8 +170,8 @@ if (ddBased == 1) {\
             outEnd = outMark.time - outMark.duration;\
          }\
          outDur = outEnd - outMark.time;\
-         } else {\
-            outDur = outEnd - outMark.time;\
+      } else {\
+         outDur = outEnd - outMark.time;\
       }\
    } else if ( syncFade == 1 ) {\
       outDur = inDur;\
@@ -178,7 +179,7 @@ if (ddBased == 1) {\
    if ( !inMark && syncFade == 1) {\
       inDur = outDur;\
    }\
-} else if (ddBased ==2) {\
+} else if (ddBased == 2) {\
    inDur = inDurSet;\
    outDur = outDurSet;\
 }\
@@ -309,6 +310,7 @@ if (ddBased == 1) {\
       } else {\
          inDur = inMark.time - inStart;\
       }\
+   }\
    if (outMark){\
       if (outMark.duration > 0) {\
          if (rev == 0) {\
@@ -319,14 +321,14 @@ if (ddBased == 1) {\
          outDur = outEnd - outMark.time;\
          } else {\
             outDur = outEnd - outMark.time;\
-      }\
+         }\
    } else if ( syncFade == 1 ) {\
       outDur = inDur;\
    }\
-   if (!inMark && syncFade == 1) {\
+   if ( !inMark && syncFade == 1) {\
       inDur = outDur;\
    }\
-} else if (ddBased ==2) {\
+} else if (ddBased == 2) {\
    inDur = inDurSet;\
    outDur = outDurSet;\
 }\
