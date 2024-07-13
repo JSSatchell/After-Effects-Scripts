@@ -77,6 +77,7 @@ outDurSet = thisLayer.effect("Fade Audio")("Fade Out Duration").value;\
 syncFade = thisLayer.effect("Fade Audio")("Symmetrical Fade?").value;\
 layerDuration = outPoint - inPoint;\
 minVol = -50;\
+rev = 0;\
 \
 try {\
    inMark = thisLayer.marker.key("Audio In");\
@@ -90,47 +91,62 @@ try {\
    outMark=false;\
 }\
 \
-inStart = inPoint;\
-outEnd = outPoint; \
+if (inPoint>outPoint) { // Check for reversed layers\
+   var flip = outPoint;\
+   newOut = inPoint;\
+   newIn = flip;\
+   rev = 1;\
+}\
+\
+inStart = newIn;\
+outEnd = newOut; \
 inDur = 0;\
 outDur = 0;\
 \
 if (ddBased == 1) {\
-if (inMark) {\
-  if (inMark.duration > 0) {\
-     inStart = inMark.time;\
-     inDur = (inMark.time + inMark.duration) - inStart;\
-  } else {\
-     inDur = inMark.time - inStart;\
-  }\
-}\
-if (outMark){\
-  if (outMark.duration > 0) {\
-     outEnd = outMark.time + outMark.duration;\
-     outDur = outEnd - outMark.time;\
-  } else {\
-     outDur = outEnd - outMark.time;\
-  }\
-} else if ( syncFade == 1 ) {\
-  outDur = inDur;\
-}\
-if (!inMark && syncFade == 1) {\
-  inDur = outDur;\
-}\
+   if (inMark) {\
+      if (inMark.duration > 0) {\
+         if (rev == 0) {\
+            inStart = inMark.time;\
+            inDur = (inMark.time + inMark.duration) - inStart;\
+         } else {\
+            inStart = inMark.time;\
+            inDur = (inMark.time - inMark.duration) - inStart;\
+         }\
+      } else {\
+         inDur = inMark.time - inStart;\
+      }\
+   if (outMark){\
+      if (outMark.duration > 0) {\
+         if (rev == 0) {\
+            outEnd = outMark.time + outMark.duration;\
+         } else {\
+            outEnd = outMark.time - outMark.duration;\
+         }\
+         outDur = outEnd - outMark.time;\
+         } else {\
+            outDur = outEnd - outMark.time;\
+      }\
+   } else if ( syncFade == 1 ) {\
+      outDur = inDur;\
+   }\
+   if (!inMark && syncFade == 1) {\
+      inDur = outDur;\
+   }\
 } else if (ddBased ==2) {\
-inDur = inDurSet;\
-outDur = outDurSet;\
+   inDur = inDurSet;\
+   outDur = outDurSet;\
 }\
 \
 fadeIn = linear(time, inStart, inStart + inDur, minVol, value[0]);\
 fadeOut = linear(time, outEnd - outDur, outEnd, value[0], minVol);\
 \
 if (ddInOut == 1) {\
-if (time < (layerDuration/2+inStart)) {\
-  [fadeIn,fadeIn]\
-} else {\
-  [fadeOut,fadeOut]\
-}\
+   if (time < (layerDuration/2+inStart)) {\
+      [fadeIn,fadeIn]\
+   } else {\
+      [fadeOut,fadeOut]\
+   }\
 } else if (ddInOut == 2) {\
    [fadeIn,fadeIn]\
 } else if (ddInOut == 3) {\
