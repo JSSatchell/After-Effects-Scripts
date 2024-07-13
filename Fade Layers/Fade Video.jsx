@@ -75,17 +75,25 @@ ddInOut = thisLayer.effect("Fade Video")("In/Out").value;\
 inDurSet = thisLayer.effect("Fade Video")("Fade In Duration").value;\
 outDurSet = thisLayer.effect("Fade Video")("Fade Out Duration").value;\
 syncFade = thisLayer.effect("Fade Video")("Symmetrical Fade?").value;\
+rev = 0;\
 \
 try {\
-inMark = thisLayer.marker.key("In");\
+   inMark = thisLayer.marker.key("In");\
 } catch (err) {\
-inMark=false;\
+   inMark=false;\
 }\
 \
 try {\
-outMark = thisLayer.marker.key("Out");\
+   outMark = thisLayer.marker.key("Out");\
 } catch (err) {\
-outMark=false;\
+   outMark=false;\
+}\
+\
+if (inPoint>outPoint) { // Check for reversed layers\
+   var flip = outPoint;\
+   newOut = inPoint;\
+   newIn = flip;\
+   rev = 1;\
 }\
 \
 inStart = inPoint;\
@@ -94,27 +102,35 @@ inDur = 0;\
 outDur = 0;\
 \
 if (ddBased == 1) {\
-if (inMark) {\
-   if (inMark.duration > 0) {\
-      inStart = inMark.time;\
-      inDur = (inMark.time + inMark.duration) - inStart;\
-   } else {\
-      inDur = inMark.time - inStart;\
+   if (inMark) {\
+      if (inMark.duration > 0) {\
+         if (rev == 0) {\
+            inStart = inMark.time;\
+            inDur = (inMark.time + inMark.duration) - inStart;\
+         } else {\
+            inStart = inMark.time;\
+            inDur = (inMark.time - inMark.duration) - inStart;\
+         }\
+      } else {\
+         inDur = inMark.time - inStart;\
+      }\
+   if (outMark){\
+      if (outMark.duration > 0) {\
+         if (rev == 0) {\
+            outEnd = outMark.time + outMark.duration;\
+         } else {\
+            outEnd = outMark.time - outMark.duration;\
+         }\
+         outDur = outEnd - outMark.time;\
+         } else {\
+            outDur = outEnd - outMark.time;\
+      }\
+   } else if ( syncFade == 1 ) {\
+      outDur = inDur;\
    }\
-}\
-if (outMark){\
-   if (outMark.duration > 0) {\
-      outEnd = outMark.time + outMark.duration;\
-      outDur = outEnd - outMark.time;\
-   } else {\
-      outDur = outEnd - outMark.time;\
+   if ( !inMark && syncFade == 1) {\
+      inDur = outDur;\
    }\
-} else if ( syncFade == 1 ) {\
-   outDur = inDur;\
-}\
-if ( !inMark && syncFade == 1) {\
-   inDur = outDur;\
-}\
 } else if (ddBased ==2) {\
    inDur = inDurSet;\
    outDur = outDurSet;\
