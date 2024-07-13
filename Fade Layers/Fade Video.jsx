@@ -114,16 +114,17 @@ if (ddBased == 1) {\
       } else {\
          inDur = inMark.time - inStart;\
       }\
+   }\
    if (outMark){\
       if (outMark.duration > 0) {\
-         if (rev == 0) {\
-            outEnd = outMark.time + outMark.duration;\
-         } else {\
-            outEnd = outMark.time - outMark.duration;\
-         }\
+		 if (rev == 0) {\
+			outEnd = outMark.time + outMark.duration;\
+		 } else {\
+			outEnd = outMark.time - outMark.duration;\
+		 }\
+		 outDur = outEnd - outMark.time;\
+      } else {\
          outDur = outEnd - outMark.time;\
-         } else {\
-            outDur = outEnd - outMark.time;\
       }\
    } else if ( syncFade == 1 ) {\
       outDur = inDur;\
@@ -131,7 +132,7 @@ if (ddBased == 1) {\
    if ( !inMark && syncFade == 1) {\
       inDur = outDur;\
    }\
-} else if (ddBased ==2) {\
+} else if (ddBased == 2) {\
    inDur = inDurSet;\
    outDur = outDurSet;\
 }\
