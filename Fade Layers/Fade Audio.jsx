@@ -78,6 +78,8 @@ syncFade = thisLayer.effect("Fade Audio")("Symmetrical Fade?").value;\
 layerDuration = outPoint - inPoint;\
 minVol = -50;\
 rev = 0;\
+newIn = inPoint;\
+newOut = outPoint;\
 \
 try {\
    inMark = thisLayer.marker.key("Audio In");\
@@ -99,7 +101,7 @@ if (inPoint>outPoint) { // Check for reversed layers\
 }\
 \
 inStart = newIn;\
-outEnd = newOut; \
+outEnd = newOut;\
 inDur = 0;\
 outDur = 0;\
 \
