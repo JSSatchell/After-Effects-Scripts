@@ -123,6 +123,8 @@ inDurSet = thisLayer.effect("Fade Video")("Fade In Duration").value;\
 outDurSet = thisLayer.effect("Fade Video")("Fade Out Duration").value;\
 syncFade = thisLayer.effect("Fade Video")("Symmetrical Fade?").value;\
 rev = 0;\
+newIn = inPoint;\
+newOut = outPoint;\
 \
 try {\
    inMark = thisLayer.marker.key("In");\
@@ -272,6 +274,8 @@ syncFade = thisLayer.effect("Fade Audio")("Symmetrical Fade?").value;\
 layerDuration = outPoint - inPoint;\
 minVol = -50;\
 rev = 0;\
+newIn = inPoint;\
+newOut = outPoint;\
 \
 try {\
    inMark = thisLayer.marker.key("Audio In");\
