@@ -18,7 +18,7 @@ Distinct features:
   - Option to always fill comp
   - Width, height, square, roundness, and color controls
   - Hold `Ctrl` to place new zone at bottom of selected layers rather than top
-- zest (Adjustment Laer)
+- zest (Adjustment Layer)
   - Always fills comp and stays centered (effectively locked without actually being locked in timeline, can disable via checkbox)
   - Hold `Ctrl` to place new zest at bottom of selected layers rather than top
 
