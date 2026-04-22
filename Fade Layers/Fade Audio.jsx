@@ -39,7 +39,6 @@ for(var i = 0; i < layers.length; i++) {
       layers[i].marker.setValueAtTime(inMrk, inNme);
       layers[i].marker.setValueAtTime(outMrk, outNme);
 
-      createTempFFX(layers[i]);
       layers[i].effect("Fade Layers").name = "Fade Audio";
 
       layers[i].effect("Fade Audio").property("Based On").expression = 'try { inMark = thisLayer.marker.key("Audio In"); } catch (err) { inMark = false; }\
