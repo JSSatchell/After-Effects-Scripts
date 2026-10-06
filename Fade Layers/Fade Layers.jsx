@@ -52,31 +52,52 @@ function video() {
    var comp = app.project.activeItem;
    var layers = comp.selectedLayers;
    app.beginUndoGroup("Add Video Fade");
+   var ffx = createTempFFX();
    clearOutput();
    writeLn("Begin Add Video Fade");
-   var ffx = createTempFFX();
    var clockstart = new Date().getTime();
 
+   var PBWin = new Window ("palette", "Fade Layers", [0,0,300,70]); 
+   var ProgressText = PBWin.add("statictext", [12,10, 190, 30], "Progress"); 
+   var ProgressBar = PBWin.add("progressbar", [10,40,290,60], 0, layers.length); 
+   this.windowRef = PBWin; 
+   PBWin.show(); 
+   PBWin.center(); 
+
    for(var i = 0; i < layers.length; i++) {
+
       progress = (i / layers.length) * 100;
+      ProgressBar.value = i;
+      ProgressText.text = "Adding FFX... " + Math.round(progress) + "% (" + layers[i].name + ")";  
+      PBWin.update();
+
       clearOutput();
       writeLn("Adding FFX: " + Math.round(progress) + "%");
+      write(layers[i].name);
+
       if (layers[i].hasVideo){
          layers[i].applyPreset(ffx);
       } else {
          layers.splice(i,1);
          i--;
       }
+      
    }
-
+   
    if (ffx.exists){
       ffx.remove();
    }
 
+   ProgressBar.value = 0;
+
    for(var i = 0; i < layers.length; i++) {
       progress = (i / layers.length) * 100;
+      ProgressBar.value = i;
+      ProgressText.text ="Adding expressions... " + Math.round(progress) + "% (" + layers[i].name + ")";  
+      PBWin.update();
       clearOutput();
-      write("Adding expressions: " + Math.round(progress) + "%");
+      writeLn("Adding expressions: " + Math.round(progress) + "%");
+      write(layers[i].name);
 
          var newIn = layers[i].inPoint;
          var newOut = layers[i].outPoint;
@@ -217,14 +238,16 @@ if (ddInOut == 1) {\
 } else if (ddInOut==4) {\
    value\
 }';
-         //exProg.close();
    }
+   
+   PBWin.close();
    
    clearOutput();
    writeLn("Completed Fade Video for " + layers.length + " layers.");
    var clockstop = new Date().getTime();
    var elapsed = (((clockstop - clockstart) / 1000) / 60);
    write("Elapsed time: " + elapsed.toFixed(2) + " minutes");
+
    app.endUndoGroup()
 
 }
